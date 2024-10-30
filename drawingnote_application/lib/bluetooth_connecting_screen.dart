@@ -141,13 +141,19 @@ class _BluetoothConnectingScreenState extends State<BluetoothConnectingScreen> {
               ),
             ),
             ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const DrawingScreen()), //클릭시 이동
-                  );
-                },
+                onPressed: _deviceStatus == 2
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const DrawingScreen()), //클릭시 이동
+                        );
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _deviceStatus == 2 ? Colors.blue : null,
+                ),
                 child: const Text("Start")),
           ],
         ),
