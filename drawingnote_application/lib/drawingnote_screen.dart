@@ -44,8 +44,8 @@ class _DrawingScreenState extends State<DrawingScreen> {
         ],
       ),
       body: GestureDetector(
-        onPanStart: (details) => {
-          //TODO : start header 전송
+        onPanStart: (details) async {
+          await widget.bluetoothClassic.write("type:drawingData\r\n");
         },
         onPanUpdate: (details) async {
           RenderBox renderBox = context.findRenderObject() as RenderBox;
@@ -57,15 +57,15 @@ class _DrawingScreenState extends State<DrawingScreen> {
           await widget.bluetoothClassic
               .write("${localPosition.dx}:${localPosition.dy}\r\n");
 
-          if (kDebugMode) {
-            print("${localPosition.dx}:${localPosition.dy}");
-          }
+          // if (kDebugMode) {
+          //   print("${localPosition.dx}:${localPosition.dy}");
+          // }
 
           setState(() {});
         },
-        onPanEnd: (details) {
+        onPanEnd: (details) async {
           points.add(null); // null을 추가해서 선이 끊기도록 함
-          //TODO : end 전송
+          await widget.bluetoothClassic.write("end\r\n");
         },
         child: CustomPaint(
           painter: DrawingPainter(points, offset: const Offset(0, -100)),
