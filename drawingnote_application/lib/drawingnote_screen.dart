@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
 class DrawingScreen extends StatefulWidget {
-  const DrawingScreen({super.key});
+  final BluetoothClassic bluetoothClassic;
+
+  const DrawingScreen({super.key, required this.bluetoothClassic});
 
   @override
   State<DrawingScreen> createState() => _DrawingScreenState();
@@ -16,6 +18,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
   @override
   void initState() {
     super.initState();
+
     //TODO : 이미지랑 기존 drawing data 불러오기
   }
 
@@ -69,10 +72,8 @@ class _DrawingScreenState extends State<DrawingScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (kDebugMode) {
-            print(points);
-          }
+        onPressed: () async {
+          await widget.bluetoothClassic.write("ping\r\n");
         },
         child: const Icon(Icons.print),
       ),

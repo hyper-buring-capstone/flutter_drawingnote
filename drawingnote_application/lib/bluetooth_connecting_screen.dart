@@ -146,8 +146,9 @@ class _BluetoothConnectingScreenState extends State<BluetoothConnectingScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  const DrawingScreen()), //클릭시 이동
+                              builder: (context) => DrawingScreen(
+                                    bluetoothClassic: _bluetoothClassicPlugin,
+                                  )), //클릭시 이동
                         );
                       }
                     : null,
