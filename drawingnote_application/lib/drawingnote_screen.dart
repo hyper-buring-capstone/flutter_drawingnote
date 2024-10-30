@@ -47,20 +47,21 @@ class _DrawingScreenState extends State<DrawingScreen> {
         onPanStart: (details) => {
           //TODO : start header 전송
         },
-        onPanUpdate: (details) {
-          setState(() {
-            RenderBox renderBox = context.findRenderObject() as RenderBox;
-            Offset localPosition =
-                renderBox.globalToLocal(details.globalPosition);
-            points.add(localPosition);
+        onPanUpdate: (details) async {
+          RenderBox renderBox = context.findRenderObject() as RenderBox;
+          Offset localPosition =
+              renderBox.globalToLocal(details.globalPosition);
+          points.add(localPosition);
 
-            // 터치할 때마다 좌표를 블루투스를 통해 전송
-            //sendDrawingData(localPosition);
+          // 터치할 때마다 좌표를 블루투스를 통해 전송
+          await widget.bluetoothClassic
+              .write("${localPosition.dx}:${localPosition.dy}\r\n");
 
-            if (kDebugMode) {
-              print(localPosition);
-            }
-          });
+          if (kDebugMode) {
+            print("${localPosition.dx}:${localPosition.dy}");
+          }
+
+          setState(() {});
         },
         onPanEnd: (details) {
           points.add(null); // null을 추가해서 선이 끊기도록 함
