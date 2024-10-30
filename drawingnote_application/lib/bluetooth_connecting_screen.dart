@@ -6,15 +6,17 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:bluetooth_classic/bluetooth_classic.dart';
 
-class BluetoothConnectingPage extends StatefulWidget {
-  const BluetoothConnectingPage({super.key});
+import 'drawingnote_screen.dart';
+
+class BluetoothConnectingScreen extends StatefulWidget {
+  const BluetoothConnectingScreen({super.key});
 
   @override
-  State<BluetoothConnectingPage> createState() =>
-      _BluetoothConnectingPageState();
+  State<BluetoothConnectingScreen> createState() =>
+      _BluetoothConnectingScreenState();
 }
 
-class _BluetoothConnectingPageState extends State<BluetoothConnectingPage> {
+class _BluetoothConnectingScreenState extends State<BluetoothConnectingScreen> {
   //bluetooth 관련 변수 선언
   String _platformVersion = 'Unknown';
   final _bluetoothClassicPlugin = BluetoothClassic();
@@ -31,6 +33,7 @@ class _BluetoothConnectingPageState extends State<BluetoothConnectingPage> {
   void initState() {
     super.initState();
     initPlatformState();
+
     _bluetoothClassicPlugin.onDeviceStatusChanged().listen((event) {
       setState(() {
         _deviceStatus = event;
@@ -65,6 +68,8 @@ class _BluetoothConnectingPageState extends State<BluetoothConnectingPage> {
     setState(() {
       _platformVersion = platformVersion;
     });
+
+    _getDevices();
   }
 
   //paired device 가져와서 _devices에 저장
@@ -100,69 +105,51 @@ class _BluetoothConnectingPageState extends State<BluetoothConnectingPage> {
   //화면 구성
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Text("Device status is $_deviceStatus"),
-              TextButton(
-                onPressed: () async {
-                  await _bluetoothClassicPlugin.initPermissions();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Plugin example app'),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            TextButton(
+              onPressed: () async {
+                await _bluetoothClassicPlugin.initPermissions();
+              },
+              child: const Text("Check Permissions"),
+            ),
+            Text("Device status is $_deviceStatus"),
+            const Text("페어링된 블루투스 기기 목록"),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black, width: 2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    for (var device in _devices)
+                      TextButton(
+                          onPressed: () async {
+                            await _bluetoothClassicPlugin.connect(
+                                device.address,
+                                "00001101-0000-1000-8000-00805f9b34fb");
+                          },
+                          child: Text(device.name ?? device.address))
+                  ],
+                ),
+              ),
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DrawingScreen()), //클릭시 이동
+                  );
                 },
-                child: const Text("Check Permissions"),
-              ),
-              TextButton(
-                onPressed: _getDevices,
-                child: const Text("Get Paired Devices"),
-              ),
-              TextButton(
-                onPressed: _deviceStatus == Device.connected
-                    ? () async {
-                        await _bluetoothClassicPlugin.disconnect();
-                      }
-                    : null,
-                child: const Text("disconnect"),
-              ),
-              TextButton(
-                onPressed: _deviceStatus == Device.connected
-                    ? () async {
-                        await _bluetoothClassicPlugin.write("ping\r\n");
-                      }
-                    : null,
-                child: const Text("send ping"),
-              ),
-              Center(
-                child: Text('Running on: $_platformVersion\n'),
-              ),
-              ...[
-                for (var device in _devices)
-                  TextButton(
-                      onPressed: () async {
-                        await _bluetoothClassicPlugin.connect(device.address,
-                            "00001101-0000-1000-8000-00805f9b34fb");
-                        setState(() {
-                          _discoveredDevices = [];
-                          _devices = [];
-                        });
-                      },
-                      child: Text(device.name ?? device.address))
-              ],
-              TextButton(
-                onPressed: _scan,
-                child: Text(_scanning ? "Stop Scan" : "Start Scan"),
-              ),
-              ...[
-                for (var device in _discoveredDevices)
-                  Text(device.name ?? device.address)
-              ],
-              //Text("Received data: ${String.fromCharCodes(_data)}"),
-              for (String input in _receivedInput) Text(input),
-            ],
-          ),
+                child: const Text("Start")),
+          ],
         ),
       ),
     );
