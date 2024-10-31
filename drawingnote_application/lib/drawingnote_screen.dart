@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
+const String headerstring = "HEADER:DRAWING";
+const String endstring = "END";
+
 class DrawingScreen extends StatefulWidget {
   final BluetoothClassic bluetoothClassic;
 
@@ -20,11 +23,6 @@ class _DrawingScreenState extends State<DrawingScreen> {
     super.initState();
 
     //TODO : 이미지랑 기존 drawing data 불러오기
-  }
-
-  //드로잉때마다 호출
-  void sendDrawingData() {
-    //TODO : drawing data 전송
   }
 
   @override
@@ -45,7 +43,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
       ),
       body: GestureDetector(
         onPanStart: (details) async {
-          await widget.bluetoothClassic.write("type:drawingData\r\n");
+          await widget.bluetoothClassic.write("$headerstring\r\n");
         },
         onPanUpdate: (details) async {
           RenderBox renderBox = context.findRenderObject() as RenderBox;
@@ -65,7 +63,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
         },
         onPanEnd: (details) async {
           points.add(null); // null을 추가해서 선이 끊기도록 함
-          await widget.bluetoothClassic.write("end\r\n");
+          await widget.bluetoothClassic.write("$endstring\r\n");
         },
         child: CustomPaint(
           painter: DrawingPainter(points, offset: const Offset(0, -100)),
