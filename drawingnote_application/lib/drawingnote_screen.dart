@@ -55,7 +55,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
 
           // 터치할 때마다 좌표를 블루투스를 통해 전송
           await widget.bluetoothClassic
-              .write("${localPosition.dx}:${localPosition.dy}\r\n");
+              .write("${localPosition.dx} ${localPosition.dy}\r\n");
 
           // if (kDebugMode) {
           //   print("${localPosition.dx}:${localPosition.dy}");

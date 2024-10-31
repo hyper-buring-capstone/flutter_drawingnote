@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'bluetooth_connecting_screen.dart';
-import 'drawingnote_screen.dart';
 
 void main() {
   runApp(const MyApp());
