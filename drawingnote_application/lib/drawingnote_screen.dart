@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
-const String headerstring = "HEADER:DRAWING";
+const String drawingHeader = "HEADER:DRAWING";
+const String eraserHeader = "HEADER:ERASER";
 const String endstring = "END";
 
 class DrawingScreen extends StatefulWidget {
@@ -17,11 +18,11 @@ class DrawingScreen extends StatefulWidget {
 
 class _DrawingScreenState extends State<DrawingScreen> {
   List<Offset?> points = [];
+  bool isEraser = false; // 지우개 모드 변수
 
   @override
   void initState() {
     super.initState();
-
     //TODO : 이미지랑 기존 drawing data 불러오기
   }
 
@@ -43,7 +44,9 @@ class _DrawingScreenState extends State<DrawingScreen> {
       ),
       body: GestureDetector(
         onPanStart: (details) async {
-          await widget.bluetoothClassic.write("$headerstring\r\n");
+          // 터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
+          await widget.bluetoothClassic
+              .write("${isEraser ? eraserHeader : drawingHeader}\r\n");
         },
         onPanUpdate: (details) async {
           RenderBox renderBox = context.findRenderObject() as RenderBox;
@@ -54,10 +57,6 @@ class _DrawingScreenState extends State<DrawingScreen> {
           // 터치할 때마다 좌표를 블루투스를 통해 전송
           await widget.bluetoothClassic
               .write("${localPosition.dx} ${localPosition.dy}\r\n");
-
-          // if (kDebugMode) {
-          //   print("${localPosition.dx}:${localPosition.dy}");
-          // }
 
           setState(() {});
         },
@@ -70,20 +69,29 @@ class _DrawingScreenState extends State<DrawingScreen> {
           size: Size.infinite,
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await widget.bluetoothClassic.write("ping\r\n");
-        },
-        child: const Icon(Icons.print),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                isEraser = !isEraser; // 지우개 모드 토글
+              });
+            },
+            child: Icon(isEraser ? Icons.brush : Icons.cleaning_services),
+            tooltip:
+                isEraser ? 'Switch to Drawing Mode' : 'Switch to Eraser Mode',
+          ),
+        ],
       ),
     );
   }
 }
 
-//Painter 클래스
+// Painter 클래스
 class DrawingPainter extends CustomPainter {
   final List<Offset?> points;
-  final Offset offset; // 추가된 오프셋 변수, 그림 위치 조정에 사용
+  final Offset offset;
 
   DrawingPainter(this.points, {this.offset = Offset.zero});
 
