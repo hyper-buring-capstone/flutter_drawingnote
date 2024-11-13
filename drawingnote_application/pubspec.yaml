@@ -7,6 +7,7 @@ environment:
   sdk: ^3.5.1
 
 dependencies:
+  bluetooth_classic: ^0.0.2
   flutter:
     sdk: flutter
 
