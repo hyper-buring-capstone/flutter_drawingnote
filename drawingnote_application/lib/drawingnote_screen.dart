@@ -18,6 +18,9 @@ class DrawingScreen extends StatefulWidget {
 
 class _DrawingScreenState extends State<DrawingScreen> {
   List<Offset?> points = [];
+
+  List<List<Offset?>> lines = [];
+  List<Offset?> currentLine = [];
   bool isEraser = false; // 지우개 모드 변수
 
   @override
@@ -47,25 +50,44 @@ class _DrawingScreenState extends State<DrawingScreen> {
           // 터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
           await widget.bluetoothClassic
               .write("${isEraser ? eraserHeader : drawingHeader}\r\n");
+
+          //지우개 기능 관리
+          setState(() {
+            if (isEraser) {
+              _eraseLine(details.localPosition);
+            } else {
+              currentLine = [details.localPosition];
+              lines.add(currentLine);
+            }
+          });
         },
         onPanUpdate: (details) async {
           RenderBox renderBox = context.findRenderObject() as RenderBox;
           Offset localPosition =
               renderBox.globalToLocal(details.globalPosition);
-          points.add(localPosition);
+          //points.add(localPosition);
 
           // 터치할 때마다 좌표를 블루투스를 통해 전송
           await widget.bluetoothClassic
               .write("${localPosition.dx} ${localPosition.dy}\r\n");
 
-          setState(() {});
+          setState(() {
+            if (!isEraser) {
+              currentLine.add(details.localPosition);
+            } else {
+              _eraseLine(details.localPosition);
+            }
+          });
         },
         onPanEnd: (details) async {
-          points.add(null); // null을 추가해서 선이 끊기도록 함
+          //points.add(null); // null을 추가해서 선이 끊기도록 함
+          if (!isEraser) {
+            currentLine.add(null); // null을 추가해서 선이 끊기도록 함
+          }
           await widget.bluetoothClassic.write("$endstring\r\n");
         },
         child: CustomPaint(
-          painter: DrawingPainter(points, offset: const Offset(0, -100)),
+          painter: DrawingPainter(lines, offset: const Offset(0, -100)),
           size: Size.infinite,
         ),
       ),
@@ -78,22 +100,29 @@ class _DrawingScreenState extends State<DrawingScreen> {
                 isEraser = !isEraser; // 지우개 모드 토글
               });
             },
-            child: Icon(isEraser ? Icons.brush : Icons.cleaning_services),
             tooltip:
                 isEraser ? 'Switch to Drawing Mode' : 'Switch to Eraser Mode',
+            child: Icon(isEraser ? Icons.brush : Icons.cleaning_services),
           ),
         ],
       ),
     );
   }
+
+  void _eraseLine(Offset position) {
+    lines.removeWhere((line) =>
+        line.any((point) => point != null && (point - position).distance < 20));
+  }
 }
 
 // Painter 클래스
 class DrawingPainter extends CustomPainter {
-  final List<Offset?> points;
+  final List<List<Offset?>> lines;
+
+  //final List<Offset?> points;
   final Offset offset;
 
-  DrawingPainter(this.points, {this.offset = Offset.zero});
+  DrawingPainter(this.lines, {this.offset = Offset.zero});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -102,9 +131,17 @@ class DrawingPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeWidth = 5.0;
 
-    for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != null && points[i + 1] != null) {
-        canvas.drawLine(points[i]! + offset, points[i + 1]! + offset, paint);
+    // for (int i = 0; i < points.length - 1; i++) {
+    //   if (points[i] != null && points[i + 1] != null) {
+    //     canvas.drawLine(points[i]! + offset, points[i + 1]! + offset, paint);
+    //   }
+    // }
+
+    for (var line in lines) {
+      for (int i = 0; i < line.length - 1; i++) {
+        if (line[i] != null && line[i + 1] != null) {
+          canvas.drawLine(line[i]!, line[i + 1]!, paint);
+        }
       }
     }
   }

@@ -41,7 +41,7 @@ class _BluetoothConnectingScreenState extends State<BluetoothConnectingScreen> {
     });
     _bluetoothClassicPlugin.onDeviceDataReceived().listen((event) {
       setState(() {
-        _receivedInput.add(utf8.decode(event));
+        //_receivedInput.add(utf8.decode(event));
         //_data = Uint8List.fromList([..._data, ...event]);
       });
     });
