@@ -32,63 +32,59 @@ class _DrawingScreenState extends State<DrawingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Flutter 그림판'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: () {
-              setState(() {
-                points.clear();
-              });
-            },
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/dummyBackgroundImage.jpg'),
+            fit: BoxFit.cover,
           ),
-        ],
-      ),
-      body: GestureDetector(
-        onPanStart: (details) async {
-          // 터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
-          await widget.bluetoothClassic
-              .write("${isEraser ? eraserHeader : drawingHeader}\r\n");
+        ),
+        child: GestureDetector(
+          onPanStart: (details) async {
+            // 터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
+            await widget.bluetoothClassic
+                .write("${isEraser ? eraserHeader : drawingHeader}\r\n");
 
-          //지우개 기능 관리
-          setState(() {
-            if (isEraser) {
-              _eraseLine(details.localPosition);
-            } else {
-              currentLine = [details.localPosition];
-              lines.add(currentLine);
-            }
-          });
-        },
-        onPanUpdate: (details) async {
-          RenderBox renderBox = context.findRenderObject() as RenderBox;
-          Offset localPosition =
-              renderBox.globalToLocal(details.globalPosition);
-          //points.add(localPosition);
+            //지우개 기능 관리
+            setState(() {
+              if (isEraser) {
+                _eraseLine(details.localPosition);
+              } else {
+                currentLine = [details.localPosition];
+                lines.add(currentLine);
+              }
+            });
+          },
+          onPanUpdate: (details) async {
+            RenderBox renderBox = context.findRenderObject() as RenderBox;
+            Offset localPosition =
+                renderBox.globalToLocal(details.globalPosition);
+            //points.add(localPosition);
 
-          // 터치할 때마다 좌표를 블루투스를 통해 전송
-          await widget.bluetoothClassic
-              .write("${localPosition.dx} ${localPosition.dy}\r\n");
+            // 터치할 때마다 좌표를 블루투스를 통해 전송
+            await widget.bluetoothClassic
+                .write("${localPosition.dx} ${localPosition.dy}\r\n");
 
-          setState(() {
+            setState(() {
+              if (!isEraser) {
+                currentLine.add(details.localPosition);
+              } else {
+                _eraseLine(details.localPosition);
+              }
+            });
+          },
+          onPanEnd: (details) async {
+            //points.add(null); // null을 추가해서 선이 끊기도록 함
             if (!isEraser) {
-              currentLine.add(details.localPosition);
-            } else {
-              _eraseLine(details.localPosition);
+              currentLine.add(null); // null을 추가해서 선이 끊기도록 함
             }
-          });
-        },
-        onPanEnd: (details) async {
-          //points.add(null); // null을 추가해서 선이 끊기도록 함
-          if (!isEraser) {
-            currentLine.add(null); // null을 추가해서 선이 끊기도록 함
-          }
-          await widget.bluetoothClassic.write("$endstring\r\n");
-        },
-        child: CustomPaint(
-          painter: DrawingPainter(lines, offset: const Offset(0, -100)),
-          size: Size.infinite,
+            await widget.bluetoothClassic.write("$endstring\r\n");
+          },
+          child: CustomPaint(
+            painter: DrawingPainter(lines, offset: const Offset(0, -100)),
+            size: Size.infinite,
+          ),
         ),
       ),
       floatingActionButton: Column(
