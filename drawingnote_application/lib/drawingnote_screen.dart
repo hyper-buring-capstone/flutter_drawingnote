@@ -22,6 +22,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
   List<List<Offset?>> lines = [];
   List<Offset?> currentLine = [];
   bool isEraser = false; // 지우개 모드 변수
+  bool isPanning = false;
 
   @override
   void initState() {
@@ -33,33 +34,73 @@ class _DrawingScreenState extends State<DrawingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/dummyBackgroundImage.jpg'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: GestureDetector(
-          onPanStart: (details) async {
-            // 터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
+      body: GestureDetector(
+        // onPanStart: (details) async {
+        //   // 터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
+        //   await widget.bluetoothClassic
+        //       .write("${isEraser ? eraserHeader : drawingHeader}\r\n");
+
+        //   //지우개 기능 관리
+        //   setState(() {
+        //     if (isEraser) {
+        //       _eraseLine(details.localPosition);
+        //     } else {
+        //       currentLine = [details.localPosition];
+        //       lines.add(currentLine);
+        //     }
+        //   });
+        // },
+        // onPanUpdate: (details) async {
+        //   RenderBox renderBox = context.findRenderObject() as RenderBox;
+        //   Offset localPosition =
+        //       renderBox.globalToLocal(details.globalPosition);
+        //   //points.add(localPosition);
+
+        //   // 터치할 때마다 좌표를 블루투스를 통해 전송
+        //   await widget.bluetoothClassic
+        //       .write("${localPosition.dx} ${localPosition.dy}\r\n");
+
+        //   setState(() {
+        //     if (!isEraser) {
+        //       currentLine.add(details.localPosition);
+        //     } else {
+        //       _eraseLine(details.localPosition);
+        //     }
+        //   });
+        // },
+        // onPanEnd: (details) async {
+        //   //points.add(null); // null을 추가해서 선이 끊기도록 함
+        //   if (!isEraser) {
+        //     currentLine.add(null); // null을 추가해서 선이 끊기도록 함
+        //   }
+        //   await widget.bluetoothClassic.write("$endstring\r\n");
+        // },
+        onScaleStart: (details) async {
+          if (details.pointerCount == 1) {
+            //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
             await widget.bluetoothClassic
                 .write("${isEraser ? eraserHeader : drawingHeader}\r\n");
 
             //지우개 기능 관리
             setState(() {
               if (isEraser) {
-                _eraseLine(details.localPosition);
+                _eraseLine(details.localFocalPoint);
               } else {
-                currentLine = [details.localPosition];
+                currentLine = [details.localFocalPoint];
                 lines.add(currentLine);
               }
             });
-          },
-          onPanUpdate: (details) async {
+          } else if (details.pointerCount == 2) {
+            print("Panning Start");
+            setState(() {
+              isPanning = true;
+            });
+          }
+        },
+        onScaleUpdate: (details) async {
+          if (!isPanning) {
             RenderBox renderBox = context.findRenderObject() as RenderBox;
-            Offset localPosition =
-                renderBox.globalToLocal(details.globalPosition);
+            Offset localPosition = renderBox.globalToLocal(details.focalPoint);
             //points.add(localPosition);
 
             // 터치할 때마다 좌표를 블루투스를 통해 전송
@@ -68,19 +109,31 @@ class _DrawingScreenState extends State<DrawingScreen> {
 
             setState(() {
               if (!isEraser) {
-                currentLine.add(details.localPosition);
+                currentLine.add(details.localFocalPoint);
               } else {
-                _eraseLine(details.localPosition);
+                _eraseLine(details.localFocalPoint);
               }
             });
-          },
-          onPanEnd: (details) async {
-            //points.add(null); // null을 추가해서 선이 끊기도록 함
+          }
+        },
+        onScaleEnd: (details) async {
+          if (!isPanning) {
             if (!isEraser) {
               currentLine.add(null); // null을 추가해서 선이 끊기도록 함
             }
             await widget.bluetoothClassic.write("$endstring\r\n");
-          },
+          }
+          setState(() {
+            isPanning = false;
+          });
+        },
+        child: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/dummyBackgroundImage.jpg'),
+              fit: BoxFit.contain,
+            ),
+          ),
           child: CustomPaint(
             painter: DrawingPainter(lines, offset: const Offset(0, -100)),
             size: Size.infinite,
