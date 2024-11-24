@@ -109,55 +109,69 @@ class _BluetoothConnectingScreenState extends State<BluetoothConnectingScreen> {
       appBar: AppBar(
         title: const Text('Plugin example app'),
       ),
-      body: Center(
-        child: Column(
-          children: [
-            TextButton(
-              onPressed: () async {
-                await _bluetoothClassicPlugin.initPermissions();
-              },
-              child: const Text("Check Permissions"),
-            ),
-            Text("Device status is $_deviceStatus"),
-            const Text("페어링된 블루투스 기기 목록"),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 2),
-                borderRadius: BorderRadius.circular(10),
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () async {
+                  await _bluetoothClassicPlugin.initPermissions();
+                },
+                child: const Text("Check Permissions"),
               ),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    for (var device in _devices)
-                      TextButton(
-                          onPressed: () async {
-                            await _bluetoothClassicPlugin.connect(
-                                device.address,
-                                "00001101-0000-1000-8000-00805f9b34fb");
-                          },
-                          child: Text(device.name ?? device.address))
-                  ],
+              Text("Device status is $_deviceStatus"),
+              ElevatedButton(
+                  onPressed: _deviceStatus == 2
+                      ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DrawingScreen(
+                                      bluetoothClassic: _bluetoothClassicPlugin,
+                                    )), //클릭시 이동
+                          );
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _deviceStatus == 2 ? Colors.blue : null,
+                  ),
+                  child: const Text("Start")),
+            ],
+          ),
+          Column(
+            children: [
+              const Text("페어링된 블루투스 기기 목록"),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Column(
+                        children: [
+                          for (var device in _devices)
+                            TextButton(
+                                onPressed: () async {
+                                  await _bluetoothClassicPlugin.connect(
+                                      device.address,
+                                      "00001101-0000-1000-8000-00805f9b34fb");
+                                },
+                                child: Text(device.name ?? device.address))
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-            ElevatedButton(
-                onPressed: _deviceStatus == 2
-                    ? () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DrawingScreen(
-                                    bluetoothClassic: _bluetoothClassicPlugin,
-                                  )), //클릭시 이동
-                        );
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _deviceStatus == 2 ? Colors.blue : null,
-                ),
-                child: const Text("Start")),
-          ],
-        ),
+            ],
+          )
+        ],
       ),
     );
   }
