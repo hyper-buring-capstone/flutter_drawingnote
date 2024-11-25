@@ -2,6 +2,8 @@ import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:http/http.dart' as http;
 
 const String drawingHeader = "HEADER:DRAWING";
 const String eraserHeader = "HEADER:ERASER";
@@ -24,88 +26,117 @@ class _DrawingScreenState extends State<DrawingScreen> {
   bool isEraser = false; // 지우개 모드 변수
   bool isPanning = false;
 
+  Uint8List? imageBytes;
+
   final TransformationController _transformationController =
       TransformationController();
 
   @override
   void initState() {
     super.initState();
-    //TODO : 이미지랑 기존 drawing data 불러오기
+    fetchImage();
+  }
+
+  Future<void> fetchImage() async {
+    const ipAddress = '10.210.56.126';
+    const port = '8080';
+
+    //print('이미지 요청: http://$ipAddress:$port/image');
+
+    // 이미지 요청
+    try {
+      http.get(Uri.parse('http://$ipAddress:$port/image')).then((response) {
+        if (response.statusCode == 200) {
+          setState(() {
+            imageBytes = response.bodyBytes;
+          });
+          print('이미지 요청 성공');
+        } else {
+          print('이미지 요청 실패: ${response.statusCode}');
+        }
+      });
+    } catch (e) {
+      print('이미지 요청 실패: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: InteractiveViewer(
-        panEnabled: isPanning,
-        transformationController: _transformationController,
-        minScale: 0.1,
-        maxScale: 4.0,
-        onInteractionStart: (details) async {
-          if (details.pointerCount == 1) {
-            //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
-            await widget.bluetoothClassic
-                .write("${isEraser ? eraserHeader : drawingHeader}\r\n");
+      body: imageBytes == null
+          ? const Center(child: CircularProgressIndicator())
+          : InteractiveViewer(
+              panEnabled: isPanning,
+              transformationController: _transformationController,
+              minScale: 0.1,
+              maxScale: 4.0,
+              onInteractionStart: (details) async {
+                if (details.pointerCount == 1) {
+                  //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
+                  await widget.bluetoothClassic
+                      .write("${isEraser ? eraserHeader : drawingHeader}\r\n");
 
-            //지우개 기능 관리
-            setState(() {
-              if (isEraser) {
-                _eraseLine(details.localFocalPoint);
-              } else {
-                currentLine = [details.localFocalPoint];
-                lines.add(currentLine);
-              }
-            });
-          } else if (details.pointerCount == 2) {
-            setState(() {
-              isPanning = true;
-            });
-          }
-        },
-        onInteractionUpdate: (details) async {
-          if (!isPanning) {
-            RenderBox renderBox = context.findRenderObject() as RenderBox;
-            Offset localPosition = renderBox.globalToLocal(details.focalPoint);
-            //points.add(localPosition);
+                  //지우개 기능 관리
+                  setState(() {
+                    if (isEraser) {
+                      _eraseLine(details.localFocalPoint);
+                    } else {
+                      currentLine = [details.localFocalPoint];
+                      lines.add(currentLine);
+                    }
+                  });
+                } else if (details.pointerCount == 2) {
+                  setState(() {
+                    isPanning = true;
+                  });
+                }
+              },
+              onInteractionUpdate: (details) async {
+                if (!isPanning) {
+                  RenderBox renderBox = context.findRenderObject() as RenderBox;
+                  Offset localPosition =
+                      renderBox.globalToLocal(details.focalPoint);
+                  //points.add(localPosition);
 
-            // 터치할 때마다 좌표를 블루투스를 통해 전송
-            await widget.bluetoothClassic
-                .write("${localPosition.dx} ${localPosition.dy}\r\n");
+                  // 터치할 때마다 좌표를 블루투스를 통해 전송
+                  await widget.bluetoothClassic
+                      .write("${localPosition.dx} ${localPosition.dy}\r\n");
 
-            setState(() {
-              if (!isEraser) {
-                currentLine.add(details.localFocalPoint);
-              } else {
-                _eraseLine(details.localFocalPoint);
-              }
-            });
-          }
-        },
-        onInteractionEnd: (details) async {
-          if (!isPanning) {
-            if (!isEraser) {
-              currentLine.add(null); // null을 추가해서 선이 끊기도록 함
-            }
-            await widget.bluetoothClassic.write("$endstring\r\n");
-          }
-          setState(() {
-            isPanning = false;
-          });
-        },
-        child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/dummyBackgroundImage.jpg'),
-              fit: BoxFit.contain,
+                  setState(() {
+                    if (!isEraser) {
+                      currentLine.add(details.localFocalPoint);
+                    } else {
+                      _eraseLine(details.localFocalPoint);
+                    }
+                  });
+                }
+              },
+              onInteractionEnd: (details) async {
+                if (!isPanning) {
+                  if (!isEraser) {
+                    currentLine.add(null); // null을 추가해서 선이 끊기도록 함
+                  }
+                  await widget.bluetoothClassic.write("$endstring\r\n");
+                }
+                setState(() {
+                  isPanning = false;
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    //image: AssetImage('assets/dummyBackgroundImage.jpg'),
+                    image: MemoryImage(imageBytes!),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                child: CustomPaint(
+                  painter: DrawingPainter(lines, offset: const Offset(0, -100)),
+                  size: Size.infinite,
+                ),
+              ),
             ),
-          ),
-          child: CustomPaint(
-            painter: DrawingPainter(lines, offset: const Offset(0, -100)),
-            size: Size.infinite,
-          ),
-        ),
-      ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -145,12 +176,6 @@ class DrawingPainter extends CustomPainter {
       ..color = Colors.black
       ..strokeCap = StrokeCap.round
       ..strokeWidth = 5.0;
-
-    // for (int i = 0; i < points.length - 1; i++) {
-    //   if (points[i] != null && points[i + 1] != null) {
-    //     canvas.drawLine(points[i]! + offset, points[i + 1]! + offset, paint);
-    //   }
-    // }
 
     for (var line in lines) {
       for (int i = 0; i < line.length - 1; i++) {
