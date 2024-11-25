@@ -18,58 +18,50 @@ class BluetoothConnectingScreen extends StatefulWidget {
 
 class _BluetoothConnectingScreenState extends State<BluetoothConnectingScreen> {
   //bluetooth 관련 변수 선언
-  String _platformVersion = 'Unknown';
   final _bluetoothClassicPlugin = BluetoothClassic();
   List<Device> _devices = [];
-  List<Device> _discoveredDevices = [];
-  bool _scanning = false;
   int _deviceStatus = Device.disconnected;
+  String _deviceStatusString = 'Disconnected';
 
-  //final Uint8List _data = Uint8List(0);
-  final List<String> _receivedInput = [];
+  Uint8List _data = Uint8List(0);
+  String? ipAddress;
 
   //bluetooth 관련 함수 선언 (DeviceStatus 변경, 데이터 receive)
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+
+    _getDevices();
 
     _bluetoothClassicPlugin.onDeviceStatusChanged().listen((event) {
       setState(() {
         _deviceStatus = event;
+        if (_deviceStatus == 0) {
+          _deviceStatusString = 'Disconnected';
+        } else if (_deviceStatus == 1) {
+          _deviceStatusString = 'Connecting';
+        } else if (_deviceStatus == 2) {
+          _deviceStatusString = 'Server Data Receiving';
+        }
       });
     });
     _bluetoothClassicPlugin.onDeviceDataReceived().listen((event) {
-      setState(() {
-        //_receivedInput.add(utf8.decode(event));
-        //_data = Uint8List.fromList([..._data, ...event]);
-      });
+      _data = Uint8List.fromList([...event]);
+      String decoded = utf8.decode(_data);
+      String? header;
+      String? body;
+
+      List<String> parts = decoded.split(':');
+      if (parts.length >= 2) {
+        header = parts[0];
+        body = parts[1];
+      }
+
+      //header에 따른 처리
+      if (header == 'SERVERIP') {
+        ipAddress = body;
+      }
     });
-  }
-
-  //기기 OS version 받아오기
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion = await _bluetoothClassicPlugin.getPlatformVersion() ??
-          'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
-
-    _getDevices();
   }
 
   //paired device 가져와서 _devices에 저장
@@ -78,28 +70,6 @@ class _BluetoothConnectingScreenState extends State<BluetoothConnectingScreen> {
     setState(() {
       _devices = res;
     });
-  }
-
-  //bluetooth device 스캔 해서 _discoveredDevices에 저장
-  Future<void> _scan() async {
-    if (_scanning) {
-      await _bluetoothClassicPlugin.stopScan();
-      setState(() {
-        _scanning = false;
-      });
-    } else {
-      await _bluetoothClassicPlugin.startScan();
-      _bluetoothClassicPlugin.onDeviceDiscovered().listen(
-        (event) {
-          setState(() {
-            _discoveredDevices = [..._discoveredDevices, event];
-          });
-        },
-      );
-      setState(() {
-        _scanning = true;
-      });
-    }
   }
 
   //화면 구성
@@ -121,21 +91,26 @@ class _BluetoothConnectingScreenState extends State<BluetoothConnectingScreen> {
                 },
                 child: const Text("Check Permissions"),
               ),
-              Text("Device status is $_deviceStatus"),
+              (_deviceStatus == 2 && ipAddress != null)
+                  ? const Text('Ready to connect')
+                  : Text(_deviceStatusString),
               ElevatedButton(
-                  onPressed: _deviceStatus == 2
+                  onPressed: (_deviceStatus == 2 && ipAddress != null)
                       ? () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => DrawingScreen(
                                       bluetoothClassic: _bluetoothClassicPlugin,
+                                      ipAddress: ipAddress!,
                                     )), //클릭시 이동
                           );
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _deviceStatus == 2 ? Colors.blue : null,
+                    backgroundColor: (_deviceStatus == 2 && ipAddress != null)
+                        ? Colors.blue
+                        : null,
                   ),
                   child: const Text("Start")),
             ],

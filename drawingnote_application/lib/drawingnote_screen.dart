@@ -11,8 +11,10 @@ const String endstring = "END";
 
 class DrawingScreen extends StatefulWidget {
   final BluetoothClassic bluetoothClassic;
+  final String ipAddress;
 
-  const DrawingScreen({super.key, required this.bluetoothClassic});
+  const DrawingScreen(
+      {super.key, required this.bluetoothClassic, required this.ipAddress});
 
   @override
   State<DrawingScreen> createState() => _DrawingScreenState();
@@ -34,11 +36,11 @@ class _DrawingScreenState extends State<DrawingScreen> {
   @override
   void initState() {
     super.initState();
-    fetchImage();
+    //fetchImage();
   }
 
   Future<void> fetchImage() async {
-    const ipAddress = '10.210.56.126';
+    String ipAddress = widget.ipAddress;
     const port = '8080';
 
     //print('이미지 요청: http://$ipAddress:$port/image');
@@ -50,13 +52,19 @@ class _DrawingScreenState extends State<DrawingScreen> {
           setState(() {
             imageBytes = response.bodyBytes;
           });
-          print('이미지 요청 성공');
+          if (kDebugMode) {
+            print('이미지 요청 성공');
+          }
         } else {
-          print('이미지 요청 실패: ${response.statusCode}');
+          if (kDebugMode) {
+            print('이미지 요청 실패: ${response.statusCode}');
+          }
         }
       });
     } catch (e) {
-      print('이미지 요청 실패: $e');
+      if (kDebugMode) {
+        print('이미지 요청 실패: $e');
+      }
     }
   }
 
