@@ -4,28 +4,17 @@ import 'package:flutter/material.dart';
 class DrawingData {
   List<List<Offset?>> linesData = [];
   List<Offset?> currentLine = [];
-  bool _isEraser = false; // 지우개 모드 변수
-  bool _isPanning = false; // 화면 이동 모드 변수
+  bool isEraser = false; // 지우개 모드 변수
+  bool isPanning = false; // 화면 이동 모드 변수
 
   final removingDistance = 5.0;
 
-  bool get isEraser => _isEraser;
-  bool get isPanning => _isPanning;
-
-  set isEraser(bool value) {
-    _isEraser = value;
-  }
-
-  set isPanning(bool value) {
-    _isPanning = value;
-  }
-
   void switchEraserMode() {
-    _isEraser = !_isEraser;
+    isEraser = !isEraser;
   }
 
   void switchPanningMode() {
-    _isPanning = !_isPanning;
+    isPanning = !isPanning;
   }
 
   //--------------------------------------------------------------------------------

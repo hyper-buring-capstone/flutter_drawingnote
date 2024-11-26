@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'drawingpainter.dart';
 import '../../services/httpmanager.dart';
+import '../../services/bluetoothmanager.dart';
 import '../../datas/drawingdata.dart';
 
 const String drawingHeader = "HEADER:DRAWING";
@@ -10,11 +11,16 @@ const String eraserHeader = "HEADER:ERASER";
 const String endstring = "END";
 
 class NotePage extends StatefulWidget {
-  final BluetoothClassic bluetoothClassic;
-  final String ipAddress;
+  //service manager 객체
+  final Bluetoothmanager _bluetoothmanager;
+  final Httpmanager _httpmanager;
 
-  const NotePage(
-      {super.key, required this.bluetoothClassic, required this.ipAddress});
+  const NotePage({
+    super.key,
+    required bluetoothmanager,
+    required httpmanager,
+  })  : _bluetoothmanager = bluetoothmanager,
+        _httpmanager = httpmanager;
 
   @override
   State<NotePage> createState() => _NotePageState();
@@ -23,36 +29,32 @@ class NotePage extends StatefulWidget {
 class _NotePageState extends State<NotePage> {
   DrawingData drawingData = DrawingData();
 
-  //TODO 나중에 여기서 선언하지 말고 parameter로 받을 거임
-  late Httpmanager httpmanager;
-
   final TransformationController _transformationController =
       TransformationController();
 
   @override
   void initState() {
     super.initState();
-    httpmanager = Httpmanager(ipAddress: widget.ipAddress);
-    //httpmanager.fetchImage();
+    //widget._httpmanager.fetchImage();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: false,
-        body: httpmanager.imageBytes == null
+        body: widget._httpmanager.isImageBytesNull()
             ? InteractiveViewer(
                 panEnabled: drawingData.isPanning,
                 transformationController: _transformationController,
                 minScale: 0.1,
                 maxScale: 4.0,
-                onInteractionStart: (details) async {
+                onInteractionStart: (details) {
                   if (details.pointerCount == 1) {
                     //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
-                    await widget.bluetoothClassic.write(
+                    widget._bluetoothmanager.sendData(
                         "${drawingData.isEraser ? eraserHeader : drawingHeader}\r\n");
 
-                    //지우개 기능 관리
+                    //모바일 드로잉 관리
                     setState(() {
                       if (drawingData.isEraser) {
                         drawingData.eraseLine(details.localFocalPoint);
@@ -67,7 +69,7 @@ class _NotePageState extends State<NotePage> {
                     });
                   }
                 },
-                onInteractionUpdate: (details) async {
+                onInteractionUpdate: (details) {
                   if (!drawingData.isPanning) {
                     RenderBox renderBox =
                         context.findRenderObject() as RenderBox;
@@ -75,9 +77,10 @@ class _NotePageState extends State<NotePage> {
                         renderBox.globalToLocal(details.focalPoint);
 
                     // 터치할 때마다 좌표를 블루투스를 통해 전송
-                    await widget.bluetoothClassic
-                        .write("${localPosition.dx} ${localPosition.dy}\r\n");
+                    widget._bluetoothmanager.sendData(
+                        "${localPosition.dx} ${localPosition.dy}\r\n");
 
+                    //모바일 드로잉 관리리
                     setState(() {
                       if (!drawingData.isEraser) {
                         drawingData
@@ -88,18 +91,19 @@ class _NotePageState extends State<NotePage> {
                     });
                   }
                 },
-                onInteractionEnd: (details) async {
+                onInteractionEnd: (details) {
                   if (!drawingData.isPanning) {
                     if (!drawingData.isEraser) {
                       drawingData.cutCurrentLine();
                     }
-                    await widget.bluetoothClassic.write("$endstring\r\n");
+                    widget._bluetoothmanager.sendData("$endstring\r\n");
                   }
                   setState(() {
                     drawingData.isPanning = false;
                   });
                 },
                 child: Container(
+                  //debugging 용
                   // decoration: BoxDecoration(
                   //   image: DecorationImage(
                   //     image: MemoryImage(httpmanager.imageBytes!),
