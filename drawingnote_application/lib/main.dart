@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'bluetooth_connecting_screen.dart';
+import 'features/connectingPage/bluetooth_connecting_screen.dart';
 import 'package:flutter/services.dart';
 
 void main() async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// 모바일 화면 그림 데이터 관리 클래스
 class DrawingData {
   List<List<Offset?>> linesData = [];
   List<Offset?> currentLine = [];

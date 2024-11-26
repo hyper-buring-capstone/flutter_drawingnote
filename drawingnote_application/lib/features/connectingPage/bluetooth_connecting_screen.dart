@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:bluetooth_classic/bluetooth_classic.dart';
 
-import 'drawingnote_screen.dart';
+import '../drawingScreen/drawingnote_screen.dart';
 
 class BluetoothConnectingScreen extends StatefulWidget {
   const BluetoothConnectingScreen({super.key});
@@ -24,7 +24,7 @@ class _BluetoothConnectingScreenState extends State<BluetoothConnectingScreen> {
   String _deviceStatusString = 'Disconnected';
 
   Uint8List _data = Uint8List(0);
-  String? ipAddress;
+  String? ipAddress = '1';
 
   //bluetooth 관련 함수 선언 (DeviceStatus 변경, 데이터 receive)
   @override

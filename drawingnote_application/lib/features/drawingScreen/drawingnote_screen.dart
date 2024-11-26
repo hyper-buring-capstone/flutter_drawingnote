@@ -2,8 +2,8 @@ import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/material.dart';
 
 import 'drawingpainter.dart';
-import 'httpmanager.dart';
-import 'drawingdata.dart';
+import '../../services/httpmanager.dart';
+import '../../datas/drawingdata.dart';
 
 const String drawingHeader = "HEADER:DRAWING";
 const String eraserHeader = "HEADER:ERASER";
@@ -41,8 +41,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         body: httpmanager.imageBytes == null
-            ? const Center(child: CircularProgressIndicator())
-            : InteractiveViewer(
+            ? InteractiveViewer(
                 panEnabled: drawingData.isPanning,
                 transformationController: _transformationController,
                 minScale: 0.1,
@@ -101,19 +100,20 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   });
                 },
                 child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: MemoryImage(httpmanager.imageBytes!),
-                      fit: BoxFit.contain,
-                    ),
-                  ),
+                  // decoration: BoxDecoration(
+                  //   image: DecorationImage(
+                  //     image: MemoryImage(httpmanager.imageBytes!),
+                  //     fit: BoxFit.contain,
+                  //   ),
+                  // ),
                   child: CustomPaint(
                     painter: DrawingPainter(drawingData.linesData,
                         offset: const Offset(0, -100)),
                     size: Size.infinite,
                   ),
                 ),
-              ),
+              )
+            : const Center(child: CircularProgressIndicator()),
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
