@@ -6,17 +6,16 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:bluetooth_classic/bluetooth_classic.dart';
 
-import '../drawingScreen/drawingnote_screen.dart';
+import '../notePage/note_page.dart';
 
-class BluetoothConnectingScreen extends StatefulWidget {
-  const BluetoothConnectingScreen({super.key});
+class ConnectionPage extends StatefulWidget {
+  const ConnectionPage({super.key});
 
   @override
-  State<BluetoothConnectingScreen> createState() =>
-      _BluetoothConnectingScreenState();
+  State<ConnectionPage> createState() => _ConnectionPageState();
 }
 
-class _BluetoothConnectingScreenState extends State<BluetoothConnectingScreen> {
+class _ConnectionPageState extends State<ConnectionPage> {
   //bluetooth 관련 변수 선언
   final _bluetoothClassicPlugin = BluetoothClassic();
   List<Device> _devices = [];
@@ -100,7 +99,7 @@ class _BluetoothConnectingScreenState extends State<BluetoothConnectingScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => DrawingScreen(
+                                builder: (context) => NotePage(
                                       bluetoothClassic: _bluetoothClassicPlugin,
                                       ipAddress: ipAddress!,
                                     )), //클릭시 이동

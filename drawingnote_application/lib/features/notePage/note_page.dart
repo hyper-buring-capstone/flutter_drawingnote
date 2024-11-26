@@ -9,18 +9,18 @@ const String drawingHeader = "HEADER:DRAWING";
 const String eraserHeader = "HEADER:ERASER";
 const String endstring = "END";
 
-class DrawingScreen extends StatefulWidget {
+class NotePage extends StatefulWidget {
   final BluetoothClassic bluetoothClassic;
   final String ipAddress;
 
-  const DrawingScreen(
+  const NotePage(
       {super.key, required this.bluetoothClassic, required this.ipAddress});
 
   @override
-  State<DrawingScreen> createState() => _DrawingScreenState();
+  State<NotePage> createState() => _NotePageState();
 }
 
-class _DrawingScreenState extends State<DrawingScreen> {
+class _NotePageState extends State<NotePage> {
   DrawingData drawingData = DrawingData();
 
   //TODO 나중에 여기서 선언하지 말고 parameter로 받을 거임
