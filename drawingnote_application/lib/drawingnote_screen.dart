@@ -1,9 +1,8 @@
 import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:http/http.dart' as http;
+
+import 'drawingpainter.dart';
+import 'httpmanager.dart';
 
 const String drawingHeader = "HEADER:DRAWING";
 const String eraserHeader = "HEADER:ERASER";
@@ -21,14 +20,14 @@ class DrawingScreen extends StatefulWidget {
 }
 
 class _DrawingScreenState extends State<DrawingScreen> {
-  List<Offset?> points = [];
-
+  //TODO 얘네 옮길 거임
   List<List<Offset?>> lines = [];
   List<Offset?> currentLine = [];
   bool isEraser = false; // 지우개 모드 변수
   bool isPanning = false;
 
-  Uint8List? imageBytes;
+  //TODO 나중에 여기서 선언하지 말고 parameter로 받을 거임
+  late Httpmanager httpmanager;
 
   final TransformationController _transformationController =
       TransformationController();
@@ -36,43 +35,15 @@ class _DrawingScreenState extends State<DrawingScreen> {
   @override
   void initState() {
     super.initState();
-    //fetchImage();
-  }
-
-  Future<void> fetchImage() async {
-    String ipAddress = widget.ipAddress;
-    const port = '8080';
-
-    //print('이미지 요청: http://$ipAddress:$port/image');
-
-    // 이미지 요청
-    try {
-      http.get(Uri.parse('http://$ipAddress:$port/image')).then((response) {
-        if (response.statusCode == 200) {
-          setState(() {
-            imageBytes = response.bodyBytes;
-          });
-          if (kDebugMode) {
-            print('이미지 요청 성공');
-          }
-        } else {
-          if (kDebugMode) {
-            print('이미지 요청 실패: ${response.statusCode}');
-          }
-        }
-      });
-    } catch (e) {
-      if (kDebugMode) {
-        print('이미지 요청 실패: $e');
-      }
-    }
+    httpmanager = Httpmanager(ipAddress: widget.ipAddress);
+    //httpmanager.fetchImage();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: imageBytes == null
+      body: httpmanager.imageBytes == null
           ? const Center(child: CircularProgressIndicator())
           : InteractiveViewer(
               panEnabled: isPanning,
@@ -134,8 +105,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    //image: AssetImage('assets/dummyBackgroundImage.jpg'),
-                    image: MemoryImage(imageBytes!),
+                    image: MemoryImage(httpmanager.imageBytes!),
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -166,36 +136,5 @@ class _DrawingScreenState extends State<DrawingScreen> {
   void _eraseLine(Offset position) {
     lines.removeWhere((line) =>
         line.any((point) => point != null && (point - position).distance < 20));
-  }
-}
-
-// Painter 클래스
-class DrawingPainter extends CustomPainter {
-  final List<List<Offset?>> lines;
-
-  //final List<Offset?> points;
-  final Offset offset;
-
-  DrawingPainter(this.lines, {this.offset = Offset.zero});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()
-      ..color = Colors.black
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 5.0;
-
-    for (var line in lines) {
-      for (int i = 0; i < line.length - 1; i++) {
-        if (line[i] != null && line[i + 1] != null) {
-          canvas.drawLine(line[i]!, line[i + 1]!, paint);
-        }
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
   }
 }
