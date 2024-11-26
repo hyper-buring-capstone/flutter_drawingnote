@@ -39,12 +39,14 @@ class Httpmanager {
   /// 요청 성공 시 [imageBytes]에 jpg의 이진 데이터 저장
   /// 실패 시 오류 메세지 출력 (debug mode 한정)
   /// [pageNumber] : 페이지 번호 (default: 0)
-  Future<void> fetchImage({int? pageNumber = 0}) async {
+  Future<void> fetchImage({int? pageNumber = 1}) async {
     //print('이미지 요청: http://$ipAddress:$port/image');
 
     // 이미지 요청
     try {
-      http.get(Uri.parse('http://$ipAddress:$_port/image')).then((response) {
+      await http
+          .get(Uri.parse('http://$ipAddress:$_port/images/$pageNumber.jpg'))
+          .then((response) {
         if (response.statusCode == 200) {
           _imageBytes = response.bodyBytes;
 

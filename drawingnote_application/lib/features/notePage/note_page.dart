@@ -1,5 +1,5 @@
-import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import 'drawingpainter.dart';
 import '../../services/httpmanager.dart';
@@ -35,7 +35,9 @@ class _NotePageState extends State<NotePage> {
   @override
   void initState() {
     super.initState();
-    //widget._httpmanager.fetchImage();
+    widget._httpmanager.fetchImage().then((value) {
+      setState(() {});
+    });
   }
 
   @override
@@ -43,7 +45,8 @@ class _NotePageState extends State<NotePage> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         body: widget._httpmanager.isImageBytesNull()
-            ? InteractiveViewer(
+            ? const Center(child: CircularProgressIndicator())
+            : InteractiveViewer(
                 panEnabled: drawingData.isPanning,
                 transformationController: _transformationController,
                 minScale: 0.1,
@@ -104,20 +107,19 @@ class _NotePageState extends State<NotePage> {
                 },
                 child: Container(
                   //debugging 용
-                  // decoration: BoxDecoration(
-                  //   image: DecorationImage(
-                  //     image: MemoryImage(httpmanager.imageBytes!),
-                  //     fit: BoxFit.contain,
-                  //   ),
-                  // ),
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: MemoryImage(widget._httpmanager.imageBytes!),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                   child: CustomPaint(
                     painter: DrawingPainter(drawingData.linesData,
                         offset: const Offset(0, -100)),
                     size: Size.infinite,
                   ),
                 ),
-              )
-            : const Center(child: CircularProgressIndicator()),
+              ),
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [

@@ -25,7 +25,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
     _bluetoothmanager = Bluetoothmanager(httpmanager: _httpmanager);
 
     //debugging 코드
-    _httpmanager.ipAddress = '1';
+    _httpmanager.ipAddress = '10.210.60.193';
 
     //TODO 나중에 따로 페이지 만들어야 됨
     //bluetoothmanager.requestPermission();
