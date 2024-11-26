@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:convert';
 
+import '../datas/bluetoothheaderFormat.dart';
 import 'package:drawingnote_application/services/httpmanager.dart';
 
 class Bluetoothmanager {
@@ -51,16 +52,22 @@ class Bluetoothmanager {
       String? header;
       String? body;
 
-      List<String> parts = decoded.split(':');
+      //format 안맞는 수신 데이터는 무시
+      List<String> parts = decoded.split('&&');
       if (parts.length >= 2) {
         header = parts[0];
         body = parts[1];
       }
 
       //header에 따른 처리
-      if (header == 'SERVERIP') {
+      if (header == BluetoothHeaderformat.receiveIp) {
         //IP 수신한 경우 httpmanager에 저장
         _httpmanager.ipAddress = body;
+      } else if (header == BluetoothHeaderformat.receivePagenumber) {
+        //페이지 번호 수신한 경우 httpmanager에 저장, image 요청
+        _httpmanager.pageNumber = body;
+        _httpmanager.fetchImage();
+        //TODO 나중에 선 데이터도 받아야 됨
       }
     });
   }

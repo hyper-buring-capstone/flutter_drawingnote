@@ -5,7 +5,9 @@ class Httpmanager {
   static const String _port = '8080'; //port 번호
 
   String? ipAddress;
-  Uint8List? _imageBytes;
+  final ValueNotifier<Uint8List?> imageBytes = ValueNotifier<Uint8List?>(null);
+  //Uint8List? _imageBytes;
+  String? pageNumber;
 
   Httpmanager({String? ipAddress});
 
@@ -13,7 +15,7 @@ class Httpmanager {
   // getter
   //--------------------------------------------------------------------------------
 
-  Uint8List? get imageBytes => _imageBytes;
+  //Uint8List? get imageBytes => _imageBytes;
 
   //--------------------------------------------------------------------------------
   // data field 관련 함수
@@ -21,7 +23,7 @@ class Httpmanager {
 
   /// imageBytes가 null인지 확인
   bool isImageBytesNull() {
-    return _imageBytes == null;
+    return imageBytes.value == null;
   }
 
   /// IP 주소가 null인지 확인
@@ -39,16 +41,16 @@ class Httpmanager {
   /// 요청 성공 시 [imageBytes]에 jpg의 이진 데이터 저장
   /// 실패 시 오류 메세지 출력 (debug mode 한정)
   /// [pageNumber] : 페이지 번호 (default: 0)
-  Future<void> fetchImage({int? pageNumber = 1}) async {
+  Future<void> fetchImage() async {
     //print('이미지 요청: http://$ipAddress:$port/image');
 
     // 이미지 요청
     try {
       await http
-          .get(Uri.parse('http://$ipAddress:$_port/images/$pageNumber.jpg'))
+          .get(Uri.parse('http://$ipAddress:$_port/images/$pageNumber'))
           .then((response) {
         if (response.statusCode == 200) {
-          _imageBytes = response.bodyBytes;
+          imageBytes.value = response.bodyBytes;
 
           if (kDebugMode) {
             print('이미지 요청 성공');

@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 
 import 'drawingpainter.dart';
 import '../../services/httpmanager.dart';
 import '../../services/bluetoothmanager.dart';
 import '../../datas/drawingdata.dart';
-
-const String drawingHeader = "HEADER:DRAWING";
-const String eraserHeader = "HEADER:ERASER";
-const String endstring = "END";
+import '../../datas/bluetoothheaderFormat.dart';
 
 class NotePage extends StatefulWidget {
   //service manager 객체
@@ -35,7 +31,11 @@ class _NotePageState extends State<NotePage> {
   @override
   void initState() {
     super.initState();
-    widget._httpmanager.fetchImage().then((value) {
+    // widget._httpmanager.fetchImage().then((value) {
+    //   setState(() {});
+    // });
+
+    widget._httpmanager.imageBytes.addListener(() {
       setState(() {});
     });
   }
@@ -55,7 +55,7 @@ class _NotePageState extends State<NotePage> {
                   if (details.pointerCount == 1) {
                     //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
                     widget._bluetoothmanager.sendData(
-                        "${drawingData.isEraser ? eraserHeader : drawingHeader}\r\n");
+                        "${drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
 
                     //모바일 드로잉 관리
                     setState(() {
@@ -99,7 +99,8 @@ class _NotePageState extends State<NotePage> {
                     if (!drawingData.isEraser) {
                       drawingData.cutCurrentLine();
                     }
-                    widget._bluetoothmanager.sendData("$endstring\r\n");
+                    widget._bluetoothmanager
+                        .sendData("${BluetoothHeaderformat.endstring}\r\n");
                   }
                   setState(() {
                     drawingData.isPanning = false;
@@ -109,7 +110,7 @@ class _NotePageState extends State<NotePage> {
                   //debugging 용
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: MemoryImage(widget._httpmanager.imageBytes!),
+                      image: MemoryImage(widget._httpmanager.imageBytes.value!),
                       fit: BoxFit.contain,
                     ),
                   ),
