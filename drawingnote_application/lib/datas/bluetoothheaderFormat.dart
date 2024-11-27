@@ -9,4 +9,5 @@ class BluetoothHeaderformat {
   static String drawingHeader = "HEADER:DRAWING"; //drawing data 송신
   static String eraserHeader = "HEADER:ERASER"; //지우개 data 송신
   static String endstring = "END"; //송신 종료
+  //TODO 추후 펜 정보 송신 추가
 }

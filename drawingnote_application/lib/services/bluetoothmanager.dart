@@ -5,8 +5,9 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:convert';
 
-import '../datas/bluetoothheaderFormat.dart';
 import 'package:drawingnote_application/services/httpmanager.dart';
+import '../datas/bluetoothheaderFormat.dart';
+import '../datas/pagedata.dart';
 
 class Bluetoothmanager {
   //bluetooth 관련 변수 선언
@@ -21,6 +22,7 @@ class Bluetoothmanager {
   Uint8List data = Uint8List(0); //수신한 data
 
   late final Httpmanager _httpmanager; //선언한 httpmananger, http 통신 연동에 필요
+  late final Pagedata _pagedata; //선언한 pagedata, 페이지 데이터 관리에 필요
 
   //--------------------------------------------------------------------------------
   // Constructor
@@ -29,7 +31,9 @@ class Bluetoothmanager {
   //bluetooth event Listner 연결
   Bluetoothmanager({
     required httpmanager,
-  }) : _httpmanager = httpmanager {
+    required pagedata,
+  })  : _httpmanager = httpmanager,
+        _pagedata = pagedata {
     //device 연결 상태 변경 event
     _bluetoothClassicPlugin.onDeviceStatusChanged().listen((event) {
       _deviceStatus = event;
@@ -65,9 +69,9 @@ class Bluetoothmanager {
         _httpmanager.ipAddress.value = body;
       } else if (header == BluetoothHeaderformat.receivePagenumber) {
         //페이지 번호 수신한 경우 httpmanager에 저장, image 요청
-        _httpmanager.pageNumber = body;
+        _pagedata.pageNumber = body;
         _httpmanager.fetchImage();
-        //TODO 나중에 선 데이터도 받아야 됨
+        //TODO 나중에 pagedata에 선 데이터도 받아야 됨
       }
     });
   }

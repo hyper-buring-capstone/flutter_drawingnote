@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../notePage/note_page.dart';
 import '../../services/httpmanager.dart';
 import '../../services/bluetoothmanager.dart';
+import '../../datas/pagedata.dart';
 
 class ConnectionPage extends StatefulWidget {
   const ConnectionPage({super.key});
@@ -14,6 +15,7 @@ class ConnectionPage extends StatefulWidget {
 class _ConnectionPageState extends State<ConnectionPage> {
   late final Httpmanager _httpmanager;
   late final Bluetoothmanager _bluetoothmanager;
+  late final Pagedata _pagedata;
 
   //bluetooth 관련 함수 선언 (DeviceStatus 변경, 데이터 receive)
   @override
@@ -21,8 +23,14 @@ class _ConnectionPageState extends State<ConnectionPage> {
     super.initState();
 
     //service manager 객체 생성
-    _httpmanager = Httpmanager();
-    _bluetoothmanager = Bluetoothmanager(httpmanager: _httpmanager);
+    _pagedata = Pagedata();
+    _httpmanager = Httpmanager(
+      pagedata: _pagedata,
+    );
+    _bluetoothmanager = Bluetoothmanager(
+      httpmanager: _httpmanager,
+      pagedata: _pagedata,
+    );
 
     //debugging 코드
     //_httpmanager.ipAddress.value = '10.210.60.193';
@@ -70,9 +78,12 @@ class _ConnectionPageState extends State<ConnectionPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => NotePage(
-                                    bluetoothmanager: _bluetoothmanager,
-                                    httpmanager: _httpmanager)), //클릭시 이동
+                              builder: (context) => NotePage(
+                                bluetoothmanager: _bluetoothmanager,
+                                httpmanager: _httpmanager,
+                                pagedata: _pagedata,
+                              ),
+                            ), //클릭시 이동
                           );
                         }
                       : null,

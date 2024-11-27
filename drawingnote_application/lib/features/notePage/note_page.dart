@@ -5,18 +5,22 @@ import '../../services/httpmanager.dart';
 import '../../services/bluetoothmanager.dart';
 import '../../datas/drawingdata.dart';
 import '../../datas/bluetoothheaderFormat.dart';
+import '../../datas/pagedata.dart';
 
 class NotePage extends StatefulWidget {
   //service manager 객체
   final Bluetoothmanager _bluetoothmanager;
   final Httpmanager _httpmanager;
+  final Pagedata _pagedata;
 
   const NotePage({
     super.key,
     required bluetoothmanager,
     required httpmanager,
+    required pagedata,
   })  : _bluetoothmanager = bluetoothmanager,
-        _httpmanager = httpmanager;
+        _httpmanager = httpmanager,
+        _pagedata = pagedata;
 
   @override
   State<NotePage> createState() => _NotePageState();
@@ -35,7 +39,7 @@ class _NotePageState extends State<NotePage> {
     //   setState(() {});
     // });
 
-    widget._httpmanager.imageBytes.addListener(() {
+    widget._pagedata.imageBytes.addListener(() {
       setState(() {});
     });
   }
@@ -110,7 +114,7 @@ class _NotePageState extends State<NotePage> {
                   //debugging 용
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: MemoryImage(widget._httpmanager.imageBytes.value!),
+                      image: MemoryImage(widget._pagedata.imageBytes.value!),
                       fit: BoxFit.contain,
                     ),
                   ),
