@@ -62,7 +62,7 @@ class Bluetoothmanager {
       //header에 따른 처리
       if (header == BluetoothHeaderformat.receiveIp) {
         //IP 수신한 경우 httpmanager에 저장
-        _httpmanager.ipAddress = body;
+        _httpmanager.ipAddress.value = body;
       } else if (header == BluetoothHeaderformat.receivePagenumber) {
         //페이지 번호 수신한 경우 httpmanager에 저장, image 요청
         _httpmanager.pageNumber = body;
