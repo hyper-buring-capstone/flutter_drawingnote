@@ -1,5 +1,6 @@
 import 'package:bluetooth_classic/models/device.dart';
 import 'package:bluetooth_classic/bluetooth_classic.dart';
+import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'dart:async';
@@ -13,8 +14,11 @@ class Bluetoothmanager {
   //bluetooth 관련 변수 선언
   final _bluetoothClassicPlugin = BluetoothClassic();
   List<Device> _devices = []; //페어링된 디바이스 목록
-  int _deviceStatus = Device
-      .disconnected; //디바이스 연결 상태 (0:disconnected, 1:connectiong, 2:connected)
+
+  final ValueNotifier<int> deviceStatus = ValueNotifier<int>(Device
+      .disconnected); //디바이스 연결 상태 (0:disconnected, 1:connectiong, 2:connected)
+  // int _deviceStatus = Device
+  //     .disconnected; //디바이스 연결 상태 (0:disconnected, 1:connectiong, 2:connected)
   String _deviceStatusString = 'Disconnected'; //디바이스 연결 상태 메세지
   final String _serviceUUID =
       "00001101-0000-1000-8000-00805f9b34fb"; //bluetooth service UUID
@@ -36,14 +40,14 @@ class Bluetoothmanager {
         _pagedata = pagedata {
     //device 연결 상태 변경 event
     _bluetoothClassicPlugin.onDeviceStatusChanged().listen((event) {
-      _deviceStatus = event;
-      if (_deviceStatus == 0) {
+      deviceStatus.value = event;
+      if (deviceStatus.value == 0) {
         //미연결
         _deviceStatusString = 'Disconnected';
-      } else if (_deviceStatus == 1) {
+      } else if (deviceStatus.value == 1) {
         //연결 중
         _deviceStatusString = 'Connecting';
-      } else if (_deviceStatus == 2) {
+      } else if (deviceStatus.value == 2) {
         //연결
         _deviceStatusString = 'Server Data Receiving';
       }
@@ -58,7 +62,7 @@ class Bluetoothmanager {
 
       //format 안맞는 수신 데이터는 무시
       List<String> parts = decoded.split('&&');
-      if (parts.length >= 2) {
+      if (parts.length == 2) {
         header = parts[0];
         body = parts[1];
       }
@@ -81,7 +85,6 @@ class Bluetoothmanager {
   //--------------------------------------------------------------------------------
   BluetoothClassic get bluetoothClassicPlugin => _bluetoothClassicPlugin;
   List<Device> get devices => _devices;
-  int get deviceStatus => _deviceStatus;
   String get deviceStatusString => _deviceStatusString;
 
   //--------------------------------------------------------------------------------
@@ -97,7 +100,7 @@ class Bluetoothmanager {
 
   //device 연결 상태 확인
   bool deviceIsConnected() {
-    return _deviceStatus == 2;
+    return deviceStatus.value == 2;
   }
 
   ///device 연결 함수

@@ -40,6 +40,11 @@ class _ConnectionPageState extends State<ConnectionPage> {
       setState(() {});
     });
 
+    //bluetoothmanager의 deviceStatus 변경 감지하여 UI 업데이트
+    _bluetoothmanager.deviceStatus.addListener(() {
+      setState(() {});
+    });
+
     //TODO 나중에 따로 페이지 만들어야 됨
     _bluetoothmanager.requestPermission();
 
@@ -115,10 +120,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
                             TextButton(
                                 onPressed: () {
                                   _bluetoothmanager
-                                      .connectDevice(device.address)
-                                      .then((_) {
-                                    setState(() {});
-                                  });
+                                      .connectDevice(device.address);
                                 },
                                 child: Text(device.name ?? device.address))
                         ],
