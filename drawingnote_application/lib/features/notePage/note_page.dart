@@ -56,7 +56,7 @@ class _NotePageState extends State<NotePage> {
                 minScale: 0.1,
                 maxScale: 4.0,
                 onInteractionStart: (details) {
-                  if (details.pointerCount == 1) {
+                  if (!drawingData.isPanning) {
                     //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
                     widget._bluetoothmanager.sendData(
                         "${drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
@@ -69,10 +69,6 @@ class _NotePageState extends State<NotePage> {
                         drawingData.setCurrentLine(details.localFocalPoint);
                         drawingData.addNewLine();
                       }
-                    });
-                  } else if (details.pointerCount == 2) {
-                    setState(() {
-                      drawingData.isPanning = true;
                     });
                   }
                 },
@@ -106,9 +102,6 @@ class _NotePageState extends State<NotePage> {
                     widget._bluetoothmanager
                         .sendData("${BluetoothHeaderformat.endstring}\r\n");
                   }
-                  setState(() {
-                    drawingData.isPanning = false;
-                  });
                 },
                 child: Container(
                   //debugging 용
@@ -139,6 +132,17 @@ class _NotePageState extends State<NotePage> {
                   : 'Switch to Eraser Mode',
               child: Icon(
                   drawingData.isEraser ? Icons.brush : Icons.cleaning_services),
+            ),
+            FloatingActionButton(
+              onPressed: () {
+                setState(() {
+                  drawingData.switchPanningMode();
+                });
+              },
+              tooltip: drawingData.isEraser
+                  ? 'Switch to Drawing Mode'
+                  : 'Switch to Panning Mode',
+              child: Icon(drawingData.isPanning ? Icons.mouse : Icons.draw),
             ),
           ],
         ));
