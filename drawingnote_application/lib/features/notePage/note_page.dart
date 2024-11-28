@@ -74,7 +74,6 @@ class _NotePageState extends State<NotePage> {
                     //모바일 드로잉 관리
                     Offset position =
                         _transformationController.toScene(details.focalPoint);
-                    //Offset position = details.focalPoint;
                     setState(() {
                       if (drawingData.isEraser) {
                         drawingData.eraseLine(position);
@@ -87,13 +86,8 @@ class _NotePageState extends State<NotePage> {
                 },
                 onInteractionUpdate: (details) {
                   if (!drawingData.isPanning) {
-                    // RenderBox renderBox =
-                    //     context.findRenderObject() as RenderBox;
                     Offset position =
                         _transformationController.toScene(details.focalPoint);
-
-                    //Offset position = details.focalPoint;
-                    //renderBox.globalToLocal(details.focalPoint);
 
                     // 터치할 때마다 좌표를 블루투스를 통해 전송
                     widget._bluetoothmanager
