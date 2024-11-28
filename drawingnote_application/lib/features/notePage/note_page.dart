@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'drawingpainter.dart';
@@ -32,17 +33,25 @@ class _NotePageState extends State<NotePage> {
   final TransformationController _transformationController =
       TransformationController();
 
+  final GlobalKey _imageKey = GlobalKey();
+  Offset? _imagePositionTopLeft;
+  Offset? _imagePositionBottomRight;
+
+  bool _firstTouch = true;
+
   @override
   void initState() {
     super.initState();
 
     widget._pagedata.imageBytes.addListener(() {
-      setState(() {});
+      setState(() {
+        _firstTouch = true;
+      });
     });
   }
 
   /// controlMode에 따라 floatingActionButton의 아이콘 변경
-  IconData setFloatingButtonIcon() {
+  IconData _setFloatingButtonIcon() {
     if (drawingData.controlMode == ControlMode.draw) {
       return Icons.brush;
     } else if (drawingData.controlMode == ControlMode.erase) {
@@ -51,6 +60,30 @@ class _NotePageState extends State<NotePage> {
       return Icons.mouse;
     }
     return Icons.no_cell;
+  }
+
+  //image 좌상단, 우하단 좌표 설정
+  void _setImageLocationInfo() {
+    if (_imageKey.currentContext != null) {
+      final RenderBox renderBox =
+          _imageKey.currentContext!.findRenderObject() as RenderBox;
+      final Size imageSize = renderBox.size;
+      _imagePositionTopLeft = renderBox.localToGlobal(Offset.zero);
+
+      //우 하단 좌표
+      _imagePositionBottomRight =
+          renderBox.localToGlobal(Offset(imageSize.width, imageSize.height));
+
+      _imagePositionTopLeft =
+          _transformationController.toScene(_imagePositionTopLeft!);
+      _imagePositionBottomRight =
+          _transformationController.toScene(_imagePositionBottomRight!);
+
+      // if (kDebugMode) {
+      //   print('Image TopLeft Position : $_imagePositionTopLeft');
+      //   print('Image BottomRight Position : $_imagePositionBottomRight');
+      // }
+    }
   }
 
   @override
@@ -66,6 +99,12 @@ class _NotePageState extends State<NotePage> {
                 minScale: 0.1,
                 maxScale: 4.0,
                 onInteractionStart: (details) {
+                  //처음 터치 할때 이미지의 좌표를 setting
+                  if (_firstTouch) {
+                    _firstTouch = false;
+                    _setImageLocationInfo();
+                  }
+
                   if (!drawingData.isPanning) {
                     //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
                     widget._bluetoothmanager.sendData(
@@ -101,6 +140,11 @@ class _NotePageState extends State<NotePage> {
                         drawingData.eraseLine(position);
                       }
                     });
+
+                    //debug code
+                    // if (kDebugMode) {
+                    //   print('touch position : $position');
+                    // }
                   }
                 },
                 onInteractionEnd: (details) {
@@ -110,21 +154,27 @@ class _NotePageState extends State<NotePage> {
                     }
                     widget._bluetoothmanager
                         .sendData("${BluetoothHeaderformat.endstring}\r\n");
+                  } else {
+                    //debug code
+
+                    //getImageInfo();
                   }
                 },
-                child: Container(
-                  //debugging 용
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: MemoryImage(widget._pagedata.imageBytes.value!),
-                      fit: BoxFit.contain,
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Image.memory(
+                        widget._pagedata.imageBytes.value!,
+                        fit: BoxFit.contain,
+                        key: _imageKey,
+                      ),
                     ),
-                  ),
-                  child: CustomPaint(
-                    painter: DrawingPainter(drawingData.linesData,
-                        offset: const Offset(0, -100)),
-                    size: Size.infinite,
-                  ),
+                    CustomPaint(
+                      painter: DrawingPainter(drawingData.linesData,
+                          offset: const Offset(0, -100)),
+                      size: Size.infinite,
+                    ),
+                  ],
                 ),
               ),
         floatingActionButton: FloatingActionButton(
@@ -133,7 +183,7 @@ class _NotePageState extends State<NotePage> {
               drawingData.changeControlMode();
             });
           },
-          child: Icon(setFloatingButtonIcon()),
+          child: Icon(_setFloatingButtonIcon()),
         ));
   }
 }
