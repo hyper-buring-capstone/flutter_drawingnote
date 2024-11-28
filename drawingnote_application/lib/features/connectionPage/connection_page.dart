@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter/foundation.dart';
 import '../notePage/note_page.dart';
 import '../../services/httpmanager.dart';
 import '../../services/bluetoothmanager.dart';
@@ -33,11 +33,11 @@ class _ConnectionPageState extends State<ConnectionPage> {
       pagedata: _pagedata,
     );
 
-    //debugging 코드
-    //_httpmanager.ipAddress.value = '10.210.60.193';
-
     //httpmanager의 ip주소 변경 감지하여 UI 업데이트
     _httpmanager.ipAddress.addListener(() {
+      if (kDebugMode) {
+        print('ipAddress changed : ${_httpmanager.ipAddress.value}');
+      }
       setState(() {});
     });
 

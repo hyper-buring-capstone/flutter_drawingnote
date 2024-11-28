@@ -35,13 +35,22 @@ class _NotePageState extends State<NotePage> {
   @override
   void initState() {
     super.initState();
-    // widget._httpmanager.fetchImage().then((value) {
-    //   setState(() {});
-    // });
 
     widget._pagedata.imageBytes.addListener(() {
       setState(() {});
     });
+  }
+
+  /// controlMode에 따라 floatingActionButton의 아이콘 변경
+  IconData setFloatingButtonIcon() {
+    if (drawingData.controlMode == ControlMode.draw) {
+      return Icons.brush;
+    } else if (drawingData.controlMode == ControlMode.erase) {
+      return Icons.cleaning_services;
+    } else if (drawingData.controlMode == ControlMode.pan) {
+      return Icons.mouse;
+    }
+    return Icons.no_cell;
   }
 
   @override
@@ -56,7 +65,7 @@ class _NotePageState extends State<NotePage> {
                 minScale: 0.1,
                 maxScale: 4.0,
                 onInteractionStart: (details) {
-                  if (details.pointerCount == 1) {
+                  if (!drawingData.isPanning) {
                     //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
                     widget._bluetoothmanager.sendData(
                         "${drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
@@ -69,10 +78,6 @@ class _NotePageState extends State<NotePage> {
                         drawingData.setCurrentLine(details.localFocalPoint);
                         drawingData.addNewLine();
                       }
-                    });
-                  } else if (details.pointerCount == 2) {
-                    setState(() {
-                      drawingData.isPanning = true;
                     });
                   }
                 },
@@ -106,9 +111,6 @@ class _NotePageState extends State<NotePage> {
                     widget._bluetoothmanager
                         .sendData("${BluetoothHeaderformat.endstring}\r\n");
                   }
-                  setState(() {
-                    drawingData.isPanning = false;
-                  });
                 },
                 child: Container(
                   //debugging 용
@@ -125,22 +127,13 @@ class _NotePageState extends State<NotePage> {
                   ),
                 ),
               ),
-        floatingActionButton: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            FloatingActionButton(
-              onPressed: () {
-                setState(() {
-                  drawingData.switchEraserMode();
-                });
-              },
-              tooltip: drawingData.isEraser
-                  ? 'Switch to Drawing Mode'
-                  : 'Switch to Eraser Mode',
-              child: Icon(
-                  drawingData.isEraser ? Icons.brush : Icons.cleaning_services),
-            ),
-          ],
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              drawingData.changeControlMode();
+            });
+          },
+          child: Icon(setFloatingButtonIcon()),
         ));
   }
 }
