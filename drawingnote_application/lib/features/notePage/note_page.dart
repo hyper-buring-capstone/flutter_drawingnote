@@ -35,13 +35,22 @@ class _NotePageState extends State<NotePage> {
   @override
   void initState() {
     super.initState();
-    // widget._httpmanager.fetchImage().then((value) {
-    //   setState(() {});
-    // });
 
     widget._pagedata.imageBytes.addListener(() {
       setState(() {});
     });
+  }
+
+  /// controlMode에 따라 floatingActionButton의 아이콘 변경
+  IconData setFloatingButtonIcon() {
+    if (drawingData.controlMode == ControlMode.draw) {
+      return Icons.brush;
+    } else if (drawingData.controlMode == ControlMode.erase) {
+      return Icons.cleaning_services;
+    } else if (drawingData.controlMode == ControlMode.pan) {
+      return Icons.mouse;
+    }
+    return Icons.no_cell;
   }
 
   @override
@@ -50,118 +59,81 @@ class _NotePageState extends State<NotePage> {
         resizeToAvoidBottomInset: false,
         body: widget._httpmanager.isImageBytesNull()
             ? const Center(child: CircularProgressIndicator())
-            : Stack(
-                children: [
-                  InteractiveViewer(
-                    panEnabled: drawingData.isPanning,
-                    transformationController: _transformationController,
-                    minScale: 0.1,
-                    maxScale: 4.0,
-                    onInteractionStart: (details) {
-                      if (!drawingData.isPanning) {
-                        //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
-                        widget._bluetoothmanager.sendData(
-                            "${drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
+            : InteractiveViewer(
+                panEnabled: drawingData.isPanning,
+                transformationController: _transformationController,
+                minScale: 0.1,
+                maxScale: 4.0,
+                onInteractionStart: (details) {
+                  if (!drawingData.isPanning) {
+                    //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
+                    widget._bluetoothmanager.sendData(
+                        "${drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
 
-                        //모바일 드로잉 관리
-                        setState(() {
-                          if (drawingData.isEraser) {
-                            drawingData.eraseLine(details.localFocalPoint);
-                          } else {
-                            drawingData.setCurrentLine(details.localFocalPoint);
-                            drawingData.addNewLine();
-                          }
-                        });
+                    //모바일 드로잉 관리
+                    setState(() {
+                      if (drawingData.isEraser) {
+                        drawingData.eraseLine(details.localFocalPoint);
+                      } else {
+                        drawingData.setCurrentLine(details.localFocalPoint);
+                        drawingData.addNewLine();
                       }
-                    },
-                    onInteractionUpdate: (details) {
-                      if (!drawingData.isPanning) {
-                        RenderBox renderBox =
-                            context.findRenderObject() as RenderBox;
-                        Offset localPosition =
-                            renderBox.globalToLocal(details.focalPoint);
+                    });
+                  }
+                },
+                onInteractionUpdate: (details) {
+                  if (!drawingData.isPanning) {
+                    RenderBox renderBox =
+                        context.findRenderObject() as RenderBox;
+                    Offset localPosition =
+                        renderBox.globalToLocal(details.focalPoint);
 
-                        // 터치할 때마다 좌표를 블루투스를 통해 전송
-                        widget._bluetoothmanager.sendData(
-                            "${localPosition.dx} ${localPosition.dy}\r\n");
+                    // 터치할 때마다 좌표를 블루투스를 통해 전송
+                    widget._bluetoothmanager.sendData(
+                        "${localPosition.dx} ${localPosition.dy}\r\n");
 
-                        //모바일 드로잉 관리리
-                        setState(() {
-                          if (!drawingData.isEraser) {
-                            drawingData
-                                .addPointToCurrentLine(details.localFocalPoint);
-                          } else {
-                            drawingData.eraseLine(details.localFocalPoint);
-                          }
-                        });
+                    //모바일 드로잉 관리리
+                    setState(() {
+                      if (!drawingData.isEraser) {
+                        drawingData
+                            .addPointToCurrentLine(details.localFocalPoint);
+                      } else {
+                        drawingData.eraseLine(details.localFocalPoint);
                       }
-                    },
-                    onInteractionEnd: (details) {
-                      if (!drawingData.isPanning) {
-                        if (!drawingData.isEraser) {
-                          drawingData.cutCurrentLine();
-                        }
-                        widget._bluetoothmanager
-                            .sendData("${BluetoothHeaderformat.endstring}\r\n");
-                      }
-                    },
-                    child: Container(
-                      //debugging 용
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image:
-                              MemoryImage(widget._pagedata.imageBytes.value!),
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      child: CustomPaint(
-                        painter: DrawingPainter(drawingData.linesData,
-                            offset: const Offset(0, -100)),
-                        size: Size.infinite,
-                      ),
+                    });
+                  }
+                },
+                onInteractionEnd: (details) {
+                  if (!drawingData.isPanning) {
+                    if (!drawingData.isEraser) {
+                      drawingData.cutCurrentLine();
+                    }
+                    widget._bluetoothmanager
+                        .sendData("${BluetoothHeaderformat.endstring}\r\n");
+                  }
+                },
+                child: Container(
+                  //debugging 용
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: MemoryImage(widget._pagedata.imageBytes.value!),
+                      fit: BoxFit.contain,
                     ),
                   ),
-                  FloatingActionButton(
-                    onPressed: () {
-                      setState(() {
-                        drawingData.switchPanningMode();
-                      });
-                    },
-                    tooltip: drawingData.isEraser
-                        ? 'Switch to Drawing Mode'
-                        : 'Switch to Panning Mode',
-                    child:
-                        Icon(drawingData.isPanning ? Icons.mouse : Icons.draw),
+                  child: CustomPaint(
+                    painter: DrawingPainter(drawingData.linesData,
+                        offset: const Offset(0, -100)),
+                    size: Size.infinite,
                   ),
-                ],
+                ),
               ),
-        floatingActionButton: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            FloatingActionButton(
-              onPressed: () {
-                setState(() {
-                  drawingData.switchEraserMode();
-                });
-              },
-              tooltip: drawingData.isEraser
-                  ? 'Switch to Drawing Mode'
-                  : 'Switch to Eraser Mode',
-              child: Icon(
-                  drawingData.isEraser ? Icons.brush : Icons.cleaning_services),
-            ),
-            // FloatingActionButton(
-            //   onPressed: () {
-            //     setState(() {
-            //       drawingData.switchPanningMode();
-            //     });
-            //   },
-            //   tooltip: drawingData.isEraser
-            //       ? 'Switch to Drawing Mode'
-            //       : 'Switch to Panning Mode',
-            //   child: Icon(drawingData.isPanning ? Icons.mouse : Icons.draw),
-            // ),
-          ],
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              drawingData.changeControlMode();
+            });
+          },
+          child: Icon(setFloatingButtonIcon()),
         ));
   }
 }
