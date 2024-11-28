@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'bluetooth_connecting_screen.dart';
+import 'features/connectionPage/connection_page.dart';
 import 'package:flutter/services.dart';
 
 void main() async {
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: BluetoothConnectingScreen(),
+      home: ConnectionPage(),
     );
   }
 }
