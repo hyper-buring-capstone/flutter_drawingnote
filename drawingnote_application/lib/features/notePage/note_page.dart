@@ -61,6 +61,7 @@ class _NotePageState extends State<NotePage> {
             ? const Center(child: CircularProgressIndicator())
             : InteractiveViewer(
                 panEnabled: drawingData.isPanning,
+                scaleEnabled: drawingData.isPanning,
                 transformationController: _transformationController,
                 minScale: 0.1,
                 maxScale: 4.0,
@@ -71,11 +72,13 @@ class _NotePageState extends State<NotePage> {
                         "${drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
 
                     //모바일 드로잉 관리
+                    Offset position =
+                        _transformationController.toScene(details.focalPoint);
                     setState(() {
                       if (drawingData.isEraser) {
-                        drawingData.eraseLine(details.localFocalPoint);
+                        drawingData.eraseLine(position);
                       } else {
-                        drawingData.setCurrentLine(details.localFocalPoint);
+                        drawingData.setCurrentLine(position);
                         drawingData.addNewLine();
                       }
                     });
@@ -83,22 +86,19 @@ class _NotePageState extends State<NotePage> {
                 },
                 onInteractionUpdate: (details) {
                   if (!drawingData.isPanning) {
-                    RenderBox renderBox =
-                        context.findRenderObject() as RenderBox;
-                    Offset localPosition =
-                        renderBox.globalToLocal(details.focalPoint);
+                    Offset position =
+                        _transformationController.toScene(details.focalPoint);
 
                     // 터치할 때마다 좌표를 블루투스를 통해 전송
-                    widget._bluetoothmanager.sendData(
-                        "${localPosition.dx} ${localPosition.dy}\r\n");
+                    widget._bluetoothmanager
+                        .sendData("${position.dx} ${position.dy}\r\n");
 
                     //모바일 드로잉 관리리
                     setState(() {
                       if (!drawingData.isEraser) {
-                        drawingData
-                            .addPointToCurrentLine(details.localFocalPoint);
+                        drawingData.addPointToCurrentLine(position);
                       } else {
-                        drawingData.eraseLine(details.localFocalPoint);
+                        drawingData.eraseLine(position);
                       }
                     });
                   }

@@ -9,7 +9,7 @@ class DrawingData {
   bool isEraser = false; // 지우개 모드 변수
   bool isPanning = false; // 화면 이동 모드 변수
 
-  ControlMode controlMode = ControlMode.pan;
+  ControlMode controlMode = ControlMode.draw;
 
   final removingDistance = 5.0;
 
