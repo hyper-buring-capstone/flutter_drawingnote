@@ -38,6 +38,7 @@ class _NotePageState extends State<NotePage> {
   Offset? _imagePositionBottomRight;
 
   bool _firstTouch = true;
+  bool _allowToDraw = false; //이미지 안에서 선 긋기 시작할 떄만 허용
 
   @override
   void initState() {
@@ -78,12 +79,18 @@ class _NotePageState extends State<NotePage> {
           _transformationController.toScene(_imagePositionTopLeft!);
       _imagePositionBottomRight =
           _transformationController.toScene(_imagePositionBottomRight!);
-
-      // if (kDebugMode) {
-      //   print('Image TopLeft Position : $_imagePositionTopLeft');
-      //   print('Image BottomRight Position : $_imagePositionBottomRight');
-      // }
     }
+  }
+
+  //Position을 받아서 이미지 내에 있는지 확인하는 함수
+  bool _isPositionWithinImage(Offset position) {
+    if (_imagePositionTopLeft != null && _imagePositionBottomRight != null) {
+      return position.dx > _imagePositionTopLeft!.dx &&
+          position.dx < _imagePositionBottomRight!.dx &&
+          position.dy > _imagePositionTopLeft!.dy &&
+          position.dy < _imagePositionBottomRight!.dy;
+    }
+    return false;
   }
 
   @override
@@ -106,58 +113,72 @@ class _NotePageState extends State<NotePage> {
                   }
 
                   if (!drawingData.isPanning) {
-                    //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
-                    widget._bluetoothmanager.sendData(
-                        "${drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
-
                     //모바일 드로잉 관리
                     Offset position =
                         _transformationController.toScene(details.focalPoint);
-                    setState(() {
-                      if (drawingData.isEraser) {
-                        drawingData.eraseLine(position);
-                      } else {
-                        drawingData.setCurrentLine(position);
-                        drawingData.addNewLine();
-                      }
-                    });
+
+                    //이미지 안에서 시작할때만 draw를 허용
+                    if (_isPositionWithinImage(position)) {
+                      _allowToDraw = true;
+                    }
+
+                    if (_allowToDraw) {
+                      //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
+                      widget._bluetoothmanager.sendData(
+                          "${drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
+
+                      setState(() {
+                        if (drawingData.isEraser) {
+                          drawingData.eraseLine(position);
+                        } else {
+                          drawingData.setCurrentLine(position);
+                          drawingData.addNewLine();
+                        }
+                      });
+                    }
                   }
                 },
                 onInteractionUpdate: (details) {
-                  if (!drawingData.isPanning) {
+                  if (!drawingData.isPanning && _allowToDraw) {
                     Offset position =
                         _transformationController.toScene(details.focalPoint);
 
-                    // 터치할 때마다 좌표를 블루투스를 통해 전송
-                    widget._bluetoothmanager
-                        .sendData("${position.dx} ${position.dy}\r\n");
-
-                    //모바일 드로잉 관리리
-                    setState(() {
+                    //position이 이미지를 벗어나면 선을 cut
+                    if (!_isPositionWithinImage(position)) {
                       if (!drawingData.isEraser) {
-                        drawingData.addPointToCurrentLine(position);
-                      } else {
-                        drawingData.eraseLine(position);
+                        drawingData.cutCurrentLine();
                       }
-                    });
+                      widget._bluetoothmanager
+                          .sendData("${BluetoothHeaderformat.endstring}\r\n");
 
-                    //debug code
-                    // if (kDebugMode) {
-                    //   print('touch position : $position');
-                    // }
+                      _allowToDraw = false;
+                    } else {
+                      // 터치할 때마다 좌표를 블루투스를 통해 전송
+                      widget._bluetoothmanager
+                          .sendData("${position.dx} ${position.dy}\r\n");
+
+                      //모바일 드로잉 관리
+                      setState(() {
+                        if (!drawingData.isEraser) {
+                          drawingData.addPointToCurrentLine(position);
+                        } else {
+                          drawingData.eraseLine(position);
+                        }
+                      });
+                    }
                   }
                 },
                 onInteractionEnd: (details) {
-                  if (!drawingData.isPanning) {
+                  if (!drawingData.isPanning && _allowToDraw) {
                     if (!drawingData.isEraser) {
                       drawingData.cutCurrentLine();
                     }
                     widget._bluetoothmanager
                         .sendData("${BluetoothHeaderformat.endstring}\r\n");
-                  } else {
-                    //debug code
+                  }
 
-                    //getImageInfo();
+                  if (_allowToDraw) {
+                    _allowToDraw = false;
                   }
                 },
                 child: Stack(
