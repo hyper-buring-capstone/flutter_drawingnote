@@ -1,5 +1,6 @@
 import 'package:bluetooth_classic/models/device.dart';
 import 'package:bluetooth_classic/bluetooth_classic.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
@@ -57,6 +58,7 @@ class Bluetoothmanager {
     _bluetoothClassicPlugin.onDeviceDataReceived().listen((event) {
       data = Uint8List.fromList([...event]);
       String decoded = utf8.decode(data);
+
       String? header;
       String? body;
 
@@ -65,6 +67,7 @@ class Bluetoothmanager {
       if (parts.length == 2) {
         header = parts[0];
         body = parts[1];
+        body = body.replaceAll('%0A', '').replaceAll('\n', ''); //개행문자 제거
       }
 
       //header에 따른 처리
