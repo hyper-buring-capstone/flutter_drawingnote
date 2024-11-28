@@ -61,6 +61,7 @@ class _NotePageState extends State<NotePage> {
             ? const Center(child: CircularProgressIndicator())
             : InteractiveViewer(
                 panEnabled: drawingData.isPanning,
+                scaleEnabled: drawingData.isPanning,
                 transformationController: _transformationController,
                 minScale: 0.1,
                 maxScale: 4.0,
