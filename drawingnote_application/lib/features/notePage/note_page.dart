@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'drawingpainter.dart';
@@ -32,17 +33,26 @@ class _NotePageState extends State<NotePage> {
   final TransformationController _transformationController =
       TransformationController();
 
+  final GlobalKey _imageKey = GlobalKey();
+  Offset? _imagePositionTopLeft;
+  Offset? _imagePositionBottomRight;
+
+  bool _firstTouch = true;
+  bool _allowToDraw = false; //이미지 안에서 선 긋기 시작할 떄만 허용
+
   @override
   void initState() {
     super.initState();
 
     widget._pagedata.imageBytes.addListener(() {
-      setState(() {});
+      setState(() {
+        _firstTouch = true;
+      });
     });
   }
 
   /// controlMode에 따라 floatingActionButton의 아이콘 변경
-  IconData setFloatingButtonIcon() {
+  IconData _setFloatingButtonIcon() {
     if (drawingData.controlMode == ControlMode.draw) {
       return Icons.brush;
     } else if (drawingData.controlMode == ControlMode.erase) {
@@ -51,6 +61,36 @@ class _NotePageState extends State<NotePage> {
       return Icons.mouse;
     }
     return Icons.no_cell;
+  }
+
+  //image 좌상단, 우하단 좌표 설정
+  void _setImageLocationInfo() {
+    if (_imageKey.currentContext != null) {
+      final RenderBox renderBox =
+          _imageKey.currentContext!.findRenderObject() as RenderBox;
+      final Size imageSize = renderBox.size;
+      _imagePositionTopLeft = renderBox.localToGlobal(Offset.zero);
+
+      //우 하단 좌표
+      _imagePositionBottomRight =
+          renderBox.localToGlobal(Offset(imageSize.width, imageSize.height));
+
+      _imagePositionTopLeft =
+          _transformationController.toScene(_imagePositionTopLeft!);
+      _imagePositionBottomRight =
+          _transformationController.toScene(_imagePositionBottomRight!);
+    }
+  }
+
+  //Position을 받아서 이미지 내에 있는지 확인하는 함수
+  bool _isPositionWithinImage(Offset position) {
+    if (_imagePositionTopLeft != null && _imagePositionBottomRight != null) {
+      return position.dx > _imagePositionTopLeft!.dx &&
+          position.dx < _imagePositionBottomRight!.dx &&
+          position.dy > _imagePositionTopLeft!.dy &&
+          position.dy < _imagePositionBottomRight!.dy;
+    }
+    return false;
   }
 
   @override
@@ -66,65 +106,96 @@ class _NotePageState extends State<NotePage> {
                 minScale: 0.1,
                 maxScale: 4.0,
                 onInteractionStart: (details) {
-                  if (!drawingData.isPanning) {
-                    //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
-                    widget._bluetoothmanager.sendData(
-                        "${drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
+                  //처음 터치 할때 이미지의 좌표를 setting
+                  if (_firstTouch) {
+                    _firstTouch = false;
+                    _setImageLocationInfo();
+                  }
 
+                  if (!drawingData.isPanning) {
                     //모바일 드로잉 관리
                     Offset position =
                         _transformationController.toScene(details.focalPoint);
-                    setState(() {
-                      if (drawingData.isEraser) {
-                        drawingData.eraseLine(position);
-                      } else {
-                        drawingData.setCurrentLine(position);
-                        drawingData.addNewLine();
-                      }
-                    });
+
+                    //이미지 안에서 시작할때만 draw를 허용
+                    if (_isPositionWithinImage(position)) {
+                      _allowToDraw = true;
+                    }
+
+                    if (_allowToDraw) {
+                      //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
+                      widget._bluetoothmanager.sendData(
+                          "${drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
+
+                      setState(() {
+                        if (drawingData.isEraser) {
+                          drawingData.eraseLine(position);
+                        } else {
+                          drawingData.setCurrentLine(position);
+                          drawingData.addNewLine();
+                        }
+                      });
+                    }
                   }
                 },
                 onInteractionUpdate: (details) {
-                  if (!drawingData.isPanning) {
+                  if (!drawingData.isPanning && _allowToDraw) {
                     Offset position =
                         _transformationController.toScene(details.focalPoint);
 
-                    // 터치할 때마다 좌표를 블루투스를 통해 전송
-                    widget._bluetoothmanager
-                        .sendData("${position.dx} ${position.dy}\r\n");
-
-                    //모바일 드로잉 관리리
-                    setState(() {
+                    //position이 이미지를 벗어나면 선을 cut
+                    if (!_isPositionWithinImage(position)) {
                       if (!drawingData.isEraser) {
-                        drawingData.addPointToCurrentLine(position);
-                      } else {
-                        drawingData.eraseLine(position);
+                        drawingData.cutCurrentLine();
                       }
-                    });
+                      widget._bluetoothmanager
+                          .sendData("${BluetoothHeaderformat.endstring}\r\n");
+
+                      _allowToDraw = false;
+                    } else {
+                      // 터치할 때마다 좌표를 블루투스를 통해 전송
+                      widget._bluetoothmanager
+                          .sendData("${position.dx} ${position.dy}\r\n");
+
+                      //모바일 드로잉 관리
+                      setState(() {
+                        if (!drawingData.isEraser) {
+                          drawingData.addPointToCurrentLine(position);
+                        } else {
+                          drawingData.eraseLine(position);
+                        }
+                      });
+                    }
                   }
                 },
                 onInteractionEnd: (details) {
-                  if (!drawingData.isPanning) {
+                  if (!drawingData.isPanning && _allowToDraw) {
                     if (!drawingData.isEraser) {
                       drawingData.cutCurrentLine();
                     }
                     widget._bluetoothmanager
                         .sendData("${BluetoothHeaderformat.endstring}\r\n");
                   }
+
+                  if (_allowToDraw) {
+                    _allowToDraw = false;
+                  }
                 },
-                child: Container(
-                  //debugging 용
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: MemoryImage(widget._pagedata.imageBytes.value!),
-                      fit: BoxFit.contain,
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Image.memory(
+                        widget._pagedata.imageBytes.value!,
+                        fit: BoxFit.contain,
+                        key: _imageKey,
+                      ),
                     ),
-                  ),
-                  child: CustomPaint(
-                    painter: DrawingPainter(drawingData.linesData,
-                        offset: const Offset(0, -100)),
-                    size: Size.infinite,
-                  ),
+                    CustomPaint(
+                      painter: DrawingPainter(drawingData.linesData,
+                          offset: const Offset(0, -100)),
+                      size: Size.infinite,
+                    ),
+                  ],
                 ),
               ),
         floatingActionButton: FloatingActionButton(
@@ -133,7 +204,7 @@ class _NotePageState extends State<NotePage> {
               drawingData.changeControlMode();
             });
           },
-          child: Icon(setFloatingButtonIcon()),
+          child: Icon(_setFloatingButtonIcon()),
         ));
   }
 }
