@@ -45,10 +45,18 @@ class _NotePageState extends State<NotePage> {
     super.initState();
 
     widget._pagedata.imageBytes.addListener(() {
-      setState(() {
-        _firstTouch = true;
-      });
+      if (mounted) {
+        setState(() {
+          _firstTouch = true;
+        });
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    widget._pagedata.imageBytes.removeListener(() {});
+    super.dispose();
   }
 
   /// controlMode에 따라 floatingActionButton의 아이콘 변경
