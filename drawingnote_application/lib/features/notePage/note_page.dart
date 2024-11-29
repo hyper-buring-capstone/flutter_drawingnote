@@ -51,6 +51,16 @@ class _NotePageState extends State<NotePage> {
         });
       }
     });
+
+    widget._pagedata.noteState.addListener(() {
+      if (mounted) {
+        if (widget._pagedata.noteState.value == false) {
+          widget._pagedata.noteState.value = true;
+          widget._pagedata.imageBytes.value = null;
+          drawingData.clearLinesData();
+        }
+      }
+    });
   }
 
   @override

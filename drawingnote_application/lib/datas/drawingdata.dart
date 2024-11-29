@@ -60,6 +60,11 @@ class DrawingData {
         point != null && (point - position).distance < removingDistance));
   }
 
+  ///lineData 초기화
+  void clearLinesData() {
+    linesData = [];
+  }
+
   //--------------------------------------------------------------------------------
   // current line 관련 함수
   //--------------------------------------------------------------------------------
