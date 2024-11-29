@@ -37,18 +37,23 @@ class _NotePageState extends State<NotePage> {
   Offset? _imagePositionTopLeft;
   Offset? _imagePositionBottomRight;
 
-  bool _firstTouch = true;
   bool _allowToDraw = false; //이미지 안에서 선 긋기 시작할 떄만 허용
 
   @override
   void initState() {
     super.initState();
 
+    if (!widget._httpmanager.isImageBytesNull()) {
+      _afterRenderingImage();
+    }
+
     widget._pagedata.imageBytes.addListener(() {
       if (mounted) {
-        setState(() {
-          _firstTouch = true;
-        });
+        setState(() {});
+
+        if (!widget._httpmanager.isImageBytesNull()) {
+          _afterRenderingImage();
+        }
       }
     });
 
@@ -98,6 +103,35 @@ class _NotePageState extends State<NotePage> {
     return Icons.no_cell;
   }
 
+  //image 랜더링 후 실행하는 함수
+  // 이미지 로딩 완료 후 _setImageLocationInfo 호출
+
+  void _afterRenderingImage() {
+    final imageProvider = MemoryImage(widget._pagedata.imageBytes.value!);
+    final ImageStream imageStream =
+        imageProvider.resolve(const ImageConfiguration());
+
+    imageStream.addListener(
+      ImageStreamListener(
+        (ImageInfo imageInfo, bool synchronousCall) {
+          if (kDebugMode) {
+            print("Image loaded successfully!");
+          }
+
+          // 이미지 렌더링 완료 후 좌표 설정
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _setImageLocationInfo();
+          });
+        },
+        onError: (exception, stackTrace) {
+          if (kDebugMode) {
+            print("Error loading image: $exception");
+          }
+        },
+      ),
+    );
+  }
+
   //image 좌상단, 우하단 좌표 설정
   void _setImageLocationInfo() {
     if (_imageKey.currentContext != null) {
@@ -114,6 +148,11 @@ class _NotePageState extends State<NotePage> {
           _transformationController.toScene(_imagePositionTopLeft!);
       _imagePositionBottomRight =
           _transformationController.toScene(_imagePositionBottomRight!);
+
+      // if (kDebugMode) {
+      //   print("image position topLeft: $_imagePositionTopLeft");
+      //   print("image position bottomRight: $_imagePositionBottomRight");
+      // }
     }
   }
 
@@ -141,12 +180,6 @@ class _NotePageState extends State<NotePage> {
                 minScale: 0.1,
                 maxScale: 4.0,
                 onInteractionStart: (details) {
-                  //처음 터치 할때 이미지의 좌표를 setting
-                  if (_firstTouch) {
-                    _firstTouch = false;
-                    _setImageLocationInfo();
-                  }
-
                   if (!drawingData.isPanning) {
                     //모바일 드로잉 관리
                     Offset position =
