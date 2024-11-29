@@ -4,8 +4,10 @@ import 'package:flutter/foundation.dart';
 ///[pageNumber] : 현재 페이지 번호
 ///[imageBytes] : 현재 페이지의 배경 이미지 데이터
 class Pagedata {
+  final ValueNotifier<bool> noteState = ValueNotifier<bool>(true); //노트 열려있는지 여부
   String? pageNumber; //현재 페이지 번호
   final ValueNotifier<Uint8List?> imageBytes =
       ValueNotifier<Uint8List?>(null); //배경 이미지 데이터
+
   //TODO 선 데이터 추가
 }

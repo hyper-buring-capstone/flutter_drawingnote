@@ -5,6 +5,9 @@ class BluetoothHeaderformat {
   //SERVERIP&&102.10.43.12
   static String receiveIp = 'HEADER:SERVERIP'; //서버 IP 수신
   static String receivePagenumber = 'HEADER:PAGE'; //페이지 번호 수신
+  static String receiveNoteOffHeader = 'HEADER:NOTESTATE'; //노트 꺼짐 수신
+  static String receiveNoteOffBody = 'OFF'; //노트 꺼짐 수신
+  //HEADER:NOTESTATE&&OFF
 
   //모바일 -> 랩탑 송신
   static String drawingHeader = "HEADER:DRAWING"; //drawing data 송신
