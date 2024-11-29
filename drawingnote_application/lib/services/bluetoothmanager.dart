@@ -62,6 +62,10 @@ class Bluetoothmanager {
       String? header;
       String? body;
 
+      if (kDebugMode) {
+        print('received data: $decoded');
+      }
+
       //format 안맞는 수신 데이터는 무시
       List<String> parts = decoded.split('&&');
       if (parts.length == 2) {
