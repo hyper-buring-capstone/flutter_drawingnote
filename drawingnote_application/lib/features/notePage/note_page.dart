@@ -63,6 +63,23 @@ class _NotePageState extends State<NotePage> {
     });
   }
 
+  Offset _convertToRelativePosition(Offset position) {
+    double scaleNumber = 10000;
+
+    if (_imagePositionTopLeft != null && _imagePositionBottomRight != null) {
+      double relativeX = scaleNumber *
+          (position.dx - _imagePositionTopLeft!.dx) /
+          (_imagePositionBottomRight!.dx - _imagePositionTopLeft!.dx);
+      double relativeY = scaleNumber *
+          (position.dy - _imagePositionTopLeft!.dy) /
+          (_imagePositionBottomRight!.dy - _imagePositionTopLeft!.dy);
+
+      return Offset(relativeX, relativeY);
+    }
+
+    return Offset.zero;
+  }
+
   @override
   void dispose() {
     widget._pagedata.imageBytes.removeListener(() {});
@@ -172,8 +189,11 @@ class _NotePageState extends State<NotePage> {
                       _allowToDraw = false;
                     } else {
                       // 터치할 때마다 좌표를 블루투스를 통해 전송
-                      widget._bluetoothmanager
-                          .sendData("${position.dx} ${position.dy}\r\n");
+                      Offset relativePosition =
+                          _convertToRelativePosition(position); //상대좌표로 변환
+
+                      widget._bluetoothmanager.sendData(
+                          "${relativePosition.dx} ${relativePosition.dy}\r\n");
 
                       //모바일 드로잉 관리
                       setState(() {
