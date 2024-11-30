@@ -13,7 +13,7 @@ class DrawingPainter extends CustomPainter {
     Paint paint = Paint()
       ..color = Colors.black
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 5.0;
+      ..strokeWidth = 3.0;
 
     for (var line in lines) {
       for (int i = 0; i < line.length - 1; i++) {

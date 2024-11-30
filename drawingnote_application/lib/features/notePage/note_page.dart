@@ -13,23 +13,24 @@ class NotePage extends StatefulWidget {
   final Bluetoothmanager _bluetoothmanager;
   final Httpmanager _httpmanager;
   final Pagedata _pagedata;
+  final DrawingData _drawingData;
 
   const NotePage({
     super.key,
     required bluetoothmanager,
     required httpmanager,
     required pagedata,
+    required drawingData,
   })  : _bluetoothmanager = bluetoothmanager,
         _httpmanager = httpmanager,
-        _pagedata = pagedata;
+        _pagedata = pagedata,
+        _drawingData = drawingData;
 
   @override
   State<NotePage> createState() => _NotePageState();
 }
 
 class _NotePageState extends State<NotePage> {
-  DrawingData drawingData = DrawingData();
-
   final TransformationController _transformationController =
       TransformationController();
 
@@ -62,7 +63,7 @@ class _NotePageState extends State<NotePage> {
         if (widget._pagedata.noteState.value == false) {
           widget._pagedata.noteState.value = true;
           widget._pagedata.imageBytes.value = null;
-          drawingData.clearLinesData();
+          widget._drawingData.clearLinesData();
         }
       }
     });
@@ -93,11 +94,11 @@ class _NotePageState extends State<NotePage> {
 
   /// controlMode에 따라 floatingActionButton의 아이콘 변경
   IconData _setFloatingButtonIcon() {
-    if (drawingData.controlMode == ControlMode.draw) {
+    if (widget._drawingData.controlMode == ControlMode.draw) {
       return Icons.brush;
-    } else if (drawingData.controlMode == ControlMode.erase) {
+    } else if (widget._drawingData.controlMode == ControlMode.erase) {
       return Icons.cleaning_services;
-    } else if (drawingData.controlMode == ControlMode.pan) {
+    } else if (widget._drawingData.controlMode == ControlMode.pan) {
       return Icons.mouse;
     }
     return Icons.no_cell;
@@ -174,13 +175,13 @@ class _NotePageState extends State<NotePage> {
         body: widget._httpmanager.isImageBytesNull()
             ? const Center(child: CircularProgressIndicator())
             : InteractiveViewer(
-                panEnabled: drawingData.isPanning,
-                scaleEnabled: drawingData.isPanning,
+                panEnabled: widget._drawingData.isPanning,
+                scaleEnabled: widget._drawingData.isPanning,
                 transformationController: _transformationController,
                 minScale: 0.1,
                 maxScale: 4.0,
                 onInteractionStart: (details) {
-                  if (!drawingData.isPanning) {
+                  if (!widget._drawingData.isPanning) {
                     //모바일 드로잉 관리
                     Offset position =
                         _transformationController.toScene(details.focalPoint);
@@ -193,28 +194,28 @@ class _NotePageState extends State<NotePage> {
                     if (_allowToDraw) {
                       //터치 시작 시 헤더 전송 (지우개 또는 그리기 모드)
                       widget._bluetoothmanager.sendData(
-                          "${drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
+                          "${widget._drawingData.isEraser ? BluetoothHeaderformat.eraserHeader : BluetoothHeaderformat.drawingHeader}\r\n");
 
                       setState(() {
-                        if (drawingData.isEraser) {
-                          drawingData.eraseLine(position);
+                        if (widget._drawingData.isEraser) {
+                          widget._drawingData.eraseLine(position);
                         } else {
-                          drawingData.setCurrentLine(position);
-                          drawingData.addNewLine();
+                          widget._drawingData.setCurrentLine(position);
+                          widget._drawingData.addNewLine();
                         }
                       });
                     }
                   }
                 },
                 onInteractionUpdate: (details) {
-                  if (!drawingData.isPanning && _allowToDraw) {
+                  if (!widget._drawingData.isPanning && _allowToDraw) {
                     Offset position =
                         _transformationController.toScene(details.focalPoint);
 
                     //position이 이미지를 벗어나면 선을 cut
                     if (!_isPositionWithinImage(position)) {
-                      if (!drawingData.isEraser) {
-                        drawingData.cutCurrentLine();
+                      if (!widget._drawingData.isEraser) {
+                        widget._drawingData.cutCurrentLine();
                       }
                       widget._bluetoothmanager
                           .sendData("${BluetoothHeaderformat.endstring}\r\n");
@@ -230,19 +231,19 @@ class _NotePageState extends State<NotePage> {
 
                       //모바일 드로잉 관리
                       setState(() {
-                        if (!drawingData.isEraser) {
-                          drawingData.addPointToCurrentLine(position);
+                        if (!widget._drawingData.isEraser) {
+                          widget._drawingData.addPointToCurrentLine(position);
                         } else {
-                          drawingData.eraseLine(position);
+                          widget._drawingData.eraseLine(position);
                         }
                       });
                     }
                   }
                 },
                 onInteractionEnd: (details) {
-                  if (!drawingData.isPanning && _allowToDraw) {
-                    if (!drawingData.isEraser) {
-                      drawingData.cutCurrentLine();
+                  if (!widget._drawingData.isPanning && _allowToDraw) {
+                    if (!widget._drawingData.isEraser) {
+                      widget._drawingData.cutCurrentLine();
                     }
                     widget._bluetoothmanager
                         .sendData("${BluetoothHeaderformat.endstring}\r\n");
@@ -262,7 +263,7 @@ class _NotePageState extends State<NotePage> {
                       ),
                     ),
                     CustomPaint(
-                      painter: DrawingPainter(drawingData.linesData,
+                      painter: DrawingPainter(widget._drawingData.linesData,
                           offset: const Offset(0, -100)),
                       size: Size.infinite,
                     ),
@@ -272,7 +273,7 @@ class _NotePageState extends State<NotePage> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             setState(() {
-              drawingData.changeControlMode();
+              widget._drawingData.changeControlMode();
             });
           },
           child: Icon(_setFloatingButtonIcon()),

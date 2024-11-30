@@ -4,6 +4,7 @@ import '../notePage/note_page.dart';
 import '../../services/httpmanager.dart';
 import '../../services/bluetoothmanager.dart';
 import '../../datas/pagedata.dart';
+import '../../datas/drawingdata.dart';
 import 'paired_bluetooth_devices_widget.dart';
 
 class ConnectionPage extends StatefulWidget {
@@ -17,6 +18,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
   late final Httpmanager _httpmanager;
   late final Bluetoothmanager _bluetoothmanager;
   late final Pagedata _pagedata;
+  late final DrawingData _drawingData;
 
   //bluetooth 관련 함수 선언 (DeviceStatus 변경, 데이터 receive)
   @override
@@ -25,8 +27,11 @@ class _ConnectionPageState extends State<ConnectionPage> {
 
     //service manager 객체 생성
     _pagedata = Pagedata();
+    _drawingData = DrawingData();
+
     _httpmanager = Httpmanager(
       pagedata: _pagedata,
+      drawingdata: _drawingData,
     );
     _bluetoothmanager = Bluetoothmanager(
       httpmanager: _httpmanager,
@@ -47,7 +52,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
     });
 
     //TODO 나중에 따로 페이지 만들어야 됨
-    _bluetoothmanager.requestPermission();
+    //_bluetoothmanager.requestPermission();
 
     _bluetoothmanager.getDevices().then((_) {
       setState(() {});
@@ -88,6 +93,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
                                 bluetoothmanager: _bluetoothmanager,
                                 httpmanager: _httpmanager,
                                 pagedata: _pagedata,
+                                drawingData: _drawingData,
                               ),
                             ), //클릭시 이동
                           );
