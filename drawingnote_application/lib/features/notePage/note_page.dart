@@ -120,8 +120,13 @@ class _NotePageState extends State<NotePage> {
           }
 
           // 이미지 렌더링 완료 후 좌표 설정
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
             _setImageLocationInfo();
+
+            await widget._httpmanager.fetchLineData(
+                _imagePositionTopLeft!, _imagePositionBottomRight!);
+
+            setState(() {});
           });
         },
         onError: (exception, stackTrace) {

@@ -62,9 +62,9 @@ class Bluetoothmanager {
       String? header;
       String? body;
 
-      // if (kDebugMode) {
-      //   print('received data: $decoded');
-      // }
+      if (kDebugMode) {
+        print('received data: $decoded');
+      }
 
       //format 안맞는 수신 데이터는 무시
       List<String> parts = decoded.split('&&');
@@ -82,8 +82,6 @@ class Bluetoothmanager {
         //페이지 번호 수신한 경우 httpmanager에 저장, image 요청
         _pagedata.pageNumber = body;
         _httpmanager.fetchImage();
-        _httpmanager.fetchLineData();
-        //TODO 나중에 pagedata에 선 데이터도 받아야 됨
       } else if (header == BluetoothHeaderformat.receiveNoteOffHeader) {
         //노트 꺼짐 수신한 경우
         if (body == BluetoothHeaderformat.receiveNoteOffBody) {
