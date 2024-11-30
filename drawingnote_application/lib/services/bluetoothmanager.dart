@@ -82,7 +82,6 @@ class Bluetoothmanager {
         //페이지 번호 수신한 경우 httpmanager에 저장, image 요청
         _pagedata.pageNumber = body;
         _httpmanager.fetchImage();
-        //TODO 나중에 pagedata에 선 데이터도 받아야 됨
       } else if (header == BluetoothHeaderformat.receiveNoteOffHeader) {
         //노트 꺼짐 수신한 경우
         if (body == BluetoothHeaderformat.receiveNoteOffBody) {
