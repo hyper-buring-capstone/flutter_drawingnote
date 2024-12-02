@@ -142,6 +142,11 @@ class Bluetoothmanager {
     }
   }
 
+  ///device 연결 끊기 함수
+  Future<void> disconnectDevice() async {
+    await _bluetoothClassicPlugin.disconnect();
+  }
+
   //--------------------------------------------------------------------------------
   // 블루투스 전송 함수
   //--------------------------------------------------------------------------------

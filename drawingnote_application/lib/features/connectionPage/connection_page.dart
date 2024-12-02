@@ -72,12 +72,24 @@ class _ConnectionPageState extends State<ConnectionPage> {
     }
     //연결 중
     else if (_bluetoothmanager.deviceIsConnecting()) {
-      controlWidget = const Text('Connecting');
+      controlWidget = const Text(
+        '연결 중...',
+        style: TextStyle(
+          fontSize: 30,
+          fontFamily: 'title_font',
+        ),
+      );
     }
     //서버 데이터 받아오는 중
     else if (_bluetoothmanager.deviceIsConnected() &&
         _httpmanager.isIpAddressNull()) {
-      controlWidget = const Text('Server Data Receiving');
+      controlWidget = controlWidget = const Text(
+        '서버 정보 수신 중...',
+        style: TextStyle(
+          fontSize: 30,
+          fontFamily: 'title_font',
+        ),
+      );
       //연결 준비 완료
     } else if (_bluetoothmanager.deviceIsConnected() &&
         !_httpmanager.isIpAddressNull()) {
@@ -92,14 +104,12 @@ class _ConnectionPageState extends State<ConnectionPage> {
     }
 
     return Scaffold(
-      body: Container(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            const MainIcons(),
-            controlWidget,
-          ],
-        ),
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          const MainIcons(),
+          controlWidget,
+        ],
       ),
     );
   }

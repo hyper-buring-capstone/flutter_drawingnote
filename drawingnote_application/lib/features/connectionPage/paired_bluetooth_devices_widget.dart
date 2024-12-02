@@ -31,7 +31,11 @@ class PairedBluetoothDevicesWidget extends StatelessWidget {
                         onPressed: () {
                           _bluetoothmanager.connectDevice(device.address);
                         },
-                        child: Text(device.name ?? device.address))
+                        child: Text(device.name ?? device.address,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                            ))),
                 ],
               ),
             ),
