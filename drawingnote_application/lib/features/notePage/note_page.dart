@@ -108,6 +108,8 @@ class _NotePageState extends State<NotePage> {
   // 이미지 로딩 완료 후 _setImageLocationInfo 호출
 
   void _afterRenderingImage() {
+    widget._drawingData.clearLinesData();
+
     final imageProvider = MemoryImage(widget._pagedata.imageBytes.value!);
     final ImageStream imageStream =
         imageProvider.resolve(const ImageConfiguration());
