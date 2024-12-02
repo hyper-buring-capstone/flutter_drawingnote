@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import '../notePage/note_page.dart';
 import '../../services/httpmanager.dart';
 import '../../services/bluetoothmanager.dart';
 import '../../datas/pagedata.dart';
 import '../../datas/drawingdata.dart';
 import 'paired_bluetooth_devices_widget.dart';
 import 'on_connect_widget.dart';
+import 'main_icons.dart';
 
 class ConnectionPage extends StatefulWidget {
   const ConnectionPage({super.key});
@@ -65,20 +65,22 @@ class _ConnectionPageState extends State<ConnectionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFF00f2fe),
-        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Stack(
               children: [
-                TextButton(
-                  onPressed: () {
-                    _bluetoothmanager.requestPermission();
-                  },
-                  child: const Text("Check Permissions"),
+                const MainIcons(),
+                Positioned(
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                  child: TextButton(
+                    onPressed: () {
+                      _bluetoothmanager.requestPermission();
+                    },
+                    child: const Text("Permissions"),
+                  ),
                 ),
               ],
             ),

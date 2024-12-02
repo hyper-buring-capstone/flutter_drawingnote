@@ -21,3 +21,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+  fonts:
+    - family: title_font
+      fonts:
+        - asset: assets/fonts/title_font.ttf
