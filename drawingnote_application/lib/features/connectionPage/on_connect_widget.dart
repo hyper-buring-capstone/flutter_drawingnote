@@ -58,7 +58,7 @@ class _OnConnectWidgetState extends State<OnConnectWidget> {
             style: ElevatedButton.styleFrom(
               backgroundColor: (widget._bluetoothmanager.deviceIsConnected() &&
                       !widget._httpmanager.isIpAddressNull())
-                  ? Colors.blue
+                  ? const Color(0xFF9EC6E0)
                   : null,
             ),
             child: const Text("Start")),

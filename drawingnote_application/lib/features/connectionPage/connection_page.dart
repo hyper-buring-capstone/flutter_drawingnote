@@ -39,6 +39,8 @@ class _ConnectionPageState extends State<ConnectionPage> {
       pagedata: _pagedata,
     );
 
+    _bluetoothmanager.requestPermission();
+
     //httpmanager의 ip주소 변경 감지하여 UI 업데이트
     _httpmanager.ipAddress.addListener(() {
       if (kDebugMode) {
@@ -51,9 +53,6 @@ class _ConnectionPageState extends State<ConnectionPage> {
     _bluetoothmanager.deviceStatus.addListener(() {
       setState(() {});
     });
-
-    //TODO 나중에 따로 페이지 만들어야 됨
-    //_bluetoothmanager.requestPermission();
 
     _bluetoothmanager.getDevices().then((_) {
       setState(() {});
@@ -68,20 +67,20 @@ class _ConnectionPageState extends State<ConnectionPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Stack(
+            const Stack(
               children: [
-                const MainIcons(),
-                Positioned(
-                  bottom: 20,
-                  left: 0,
-                  right: 0,
-                  child: TextButton(
-                    onPressed: () {
-                      _bluetoothmanager.requestPermission();
-                    },
-                    child: const Text("Permissions"),
-                  ),
-                ),
+                MainIcons(),
+                // Positioned(
+                //   bottom: 20,
+                //   left: 0,
+                //   right: 0,
+                //   child: TextButton(
+                //     onPressed: () {
+                //       _bluetoothmanager.requestPermission();
+                //     },
+                //     child: const Text("Permissions"),
+                //   ),
+                // ),
               ],
             ),
             (_bluetoothmanager.deviceIsNotConnected())

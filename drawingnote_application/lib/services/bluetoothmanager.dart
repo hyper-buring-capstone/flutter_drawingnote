@@ -156,6 +156,12 @@ class Bluetoothmanager {
 
   ///permission 요청 함수
   Future<void> requestPermission() async {
-    await _bluetoothClassicPlugin.initPermissions();
+    try {
+      await _bluetoothClassicPlugin.initPermissions();
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
   }
 }
