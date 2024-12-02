@@ -38,6 +38,8 @@ class _ConnectionPageState extends State<ConnectionPage> {
       pagedata: _pagedata,
     );
 
+    _bluetoothmanager.bluetoothClassicPlugin.disconnect();
+
     //httpmanager의 ip주소 변경 감지하여 UI 업데이트
     _httpmanager.ipAddress.addListener(() {
       if (kDebugMode) {
