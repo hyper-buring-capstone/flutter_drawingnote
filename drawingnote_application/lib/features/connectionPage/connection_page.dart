@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import '../notePage/note_page.dart';
 import '../../services/httpmanager.dart';
 import '../../services/bluetoothmanager.dart';
 import '../../datas/pagedata.dart';
 import '../../datas/drawingdata.dart';
 import 'paired_bluetooth_devices_widget.dart';
+import 'on_connect_widget.dart';
+import 'main_icons.dart';
 
 class ConnectionPage extends StatefulWidget {
   const ConnectionPage({super.key});
@@ -38,6 +39,8 @@ class _ConnectionPageState extends State<ConnectionPage> {
       pagedata: _pagedata,
     );
 
+    _bluetoothmanager.requestPermission();
+
     //httpmanager의 ip주소 변경 감지하여 UI 업데이트
     _httpmanager.ipAddress.addListener(() {
       if (kDebugMode) {
@@ -51,9 +54,6 @@ class _ConnectionPageState extends State<ConnectionPage> {
       setState(() {});
     });
 
-    //TODO 나중에 따로 페이지 만들어야 됨
-    //_bluetoothmanager.requestPermission();
-
     _bluetoothmanager.getDevices().then((_) {
       setState(() {});
     }); //페어링된 디바이스 목록 가져오기
@@ -62,55 +62,53 @@ class _ConnectionPageState extends State<ConnectionPage> {
   //화면 구성
   @override
   Widget build(BuildContext context) {
+    Widget? controlWidget;
+
+    //미연결 상태
+    if (_bluetoothmanager.deviceIsNotConnected()) {
+      controlWidget = PairedBluetoothDevicesWidget(
+        bluetoothmanager: _bluetoothmanager,
+      );
+    }
+    //연결 중
+    else if (_bluetoothmanager.deviceIsConnecting()) {
+      controlWidget = const Text(
+        '연결 중...',
+        style: TextStyle(
+          fontSize: 30,
+          fontFamily: 'title_font',
+        ),
+      );
+    }
+    //서버 데이터 받아오는 중
+    else if (_bluetoothmanager.deviceIsConnected() &&
+        _httpmanager.isIpAddressNull()) {
+      controlWidget = controlWidget = const Text(
+        '서버 정보 수신 중...',
+        style: TextStyle(
+          fontSize: 30,
+          fontFamily: 'title_font',
+        ),
+      );
+      //연결 준비 완료
+    } else if (_bluetoothmanager.deviceIsConnected() &&
+        !_httpmanager.isIpAddressNull()) {
+      controlWidget = OnConnectWidget(
+        httpmanager: _httpmanager,
+        bluetoothmanager: _bluetoothmanager,
+        pagedata: _pagedata,
+        drawingData: _drawingData,
+      );
+    } else {
+      controlWidget = const Text('Error');
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plugin example app'),
-      ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextButton(
-                onPressed: () {
-                  _bluetoothmanager.requestPermission();
-                },
-                child: const Text("Check Permissions"),
-              ),
-              (_bluetoothmanager.deviceIsConnected() &&
-                      !_httpmanager.isIpAddressNull())
-                  ? const Text('Ready to connect')
-                  : Text(_bluetoothmanager.deviceStatusString),
-              ElevatedButton(
-                  onPressed: (_bluetoothmanager.deviceIsConnected() &&
-                          !_httpmanager.isIpAddressNull())
-                      ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => NotePage(
-                                bluetoothmanager: _bluetoothmanager,
-                                httpmanager: _httpmanager,
-                                pagedata: _pagedata,
-                                drawingData: _drawingData,
-                              ),
-                            ), //클릭시 이동
-                          );
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: (_bluetoothmanager.deviceIsConnected() &&
-                            !_httpmanager.isIpAddressNull())
-                        ? Colors.blue
-                        : null,
-                  ),
-                  child: const Text("Start")),
-            ],
-          ),
-          PairedBluetoothDevicesWidget(
-            bluetoothmanager: _bluetoothmanager,
-          ),
+          const MainIcons(),
+          controlWidget,
         ],
       ),
     );

@@ -10,6 +10,7 @@ dependencies:
   bluetooth_classic: ^0.0.2
   flutter:
     sdk: flutter
+  flutter_native_splash: ^2.4.3
   http: ^1.2.2
 
 dev_dependencies:
@@ -21,3 +22,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+  fonts:
+    - family: title_font
+      fonts:
+        - asset: assets/fonts/title_font.ttf

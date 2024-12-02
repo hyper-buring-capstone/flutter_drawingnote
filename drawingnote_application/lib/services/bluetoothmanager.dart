@@ -114,6 +114,14 @@ class Bluetoothmanager {
     return deviceStatus.value == 2;
   }
 
+  bool deviceIsNotConnected() {
+    return deviceStatus.value == 0;
+  }
+
+  bool deviceIsConnecting() {
+    return deviceStatus.value == 1;
+  }
+
   ///device 연결 함수
   Future<void> connectDevice(String address) async {
     //이미 연결 중인 경우 return
@@ -134,6 +142,11 @@ class Bluetoothmanager {
     }
   }
 
+  ///device 연결 끊기 함수
+  Future<void> disconnectDevice() async {
+    await _bluetoothClassicPlugin.disconnect();
+  }
+
   //--------------------------------------------------------------------------------
   // 블루투스 전송 함수
   //--------------------------------------------------------------------------------
@@ -152,6 +165,12 @@ class Bluetoothmanager {
 
   ///permission 요청 함수
   Future<void> requestPermission() async {
-    await _bluetoothClassicPlugin.initPermissions();
+    try {
+      await _bluetoothClassicPlugin.initPermissions();
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
   }
 }
