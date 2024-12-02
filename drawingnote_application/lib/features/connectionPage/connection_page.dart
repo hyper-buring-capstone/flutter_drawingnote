@@ -6,6 +6,7 @@ import '../../services/bluetoothmanager.dart';
 import '../../datas/pagedata.dart';
 import '../../datas/drawingdata.dart';
 import 'paired_bluetooth_devices_widget.dart';
+import 'on_connect_widget.dart';
 
 class ConnectionPage extends StatefulWidget {
   const ConnectionPage({super.key});
@@ -63,55 +64,36 @@ class _ConnectionPageState extends State<ConnectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plugin example app'),
-      ),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextButton(
-                onPressed: () {
-                  _bluetoothmanager.requestPermission();
-                },
-                child: const Text("Check Permissions"),
-              ),
-              (_bluetoothmanager.deviceIsConnected() &&
-                      !_httpmanager.isIpAddressNull())
-                  ? const Text('Ready to connect')
-                  : Text(_bluetoothmanager.deviceStatusString),
-              ElevatedButton(
-                  onPressed: (_bluetoothmanager.deviceIsConnected() &&
-                          !_httpmanager.isIpAddressNull())
-                      ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => NotePage(
-                                bluetoothmanager: _bluetoothmanager,
-                                httpmanager: _httpmanager,
-                                pagedata: _pagedata,
-                                drawingData: _drawingData,
-                              ),
-                            ), //클릭시 이동
-                          );
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: (_bluetoothmanager.deviceIsConnected() &&
-                            !_httpmanager.isIpAddressNull())
-                        ? Colors.blue
-                        : null,
+      body: Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFF00f2fe),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    _bluetoothmanager.requestPermission();
+                  },
+                  child: const Text("Check Permissions"),
+                ),
+              ],
+            ),
+            (_bluetoothmanager.deviceIsNotConnected())
+                ? PairedBluetoothDevicesWidget(
+                    bluetoothmanager: _bluetoothmanager,
+                  )
+                : OnConnectWidget(
+                    httpmanager: _httpmanager,
+                    bluetoothmanager: _bluetoothmanager,
+                    pagedata: _pagedata,
+                    drawingData: _drawingData,
                   ),
-                  child: const Text("Start")),
-            ],
-          ),
-          PairedBluetoothDevicesWidget(
-            bluetoothmanager: _bluetoothmanager,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
