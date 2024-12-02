@@ -116,7 +116,22 @@ class Bluetoothmanager {
 
   ///device 연결 함수
   Future<void> connectDevice(String address) async {
-    await _bluetoothClassicPlugin.connect(address, _serviceUUID);
+    //이미 연결 중인 경우 return
+    if (deviceStatus.value == 1) {
+      return;
+    }
+    //이미 연결된 경우 연결 끊고 다시 연결
+    else if (deviceStatus.value == 2) {
+      await _bluetoothClassicPlugin.disconnect();
+    }
+
+    try {
+      await _bluetoothClassicPlugin.connect(address, _serviceUUID);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Conntection Error : $e');
+      }
+    }
   }
 
   //--------------------------------------------------------------------------------
