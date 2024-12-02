@@ -62,37 +62,42 @@ class _ConnectionPageState extends State<ConnectionPage> {
   //화면 구성
   @override
   Widget build(BuildContext context) {
+    Widget? controlWidget;
+
+    //미연결 상태
+    if (_bluetoothmanager.deviceIsNotConnected()) {
+      controlWidget = PairedBluetoothDevicesWidget(
+        bluetoothmanager: _bluetoothmanager,
+      );
+    }
+    //연결 중
+    else if (_bluetoothmanager.deviceIsConnecting()) {
+      controlWidget = const Text('Connecting');
+    }
+    //서버 데이터 받아오는 중
+    else if (_bluetoothmanager.deviceIsConnected() &&
+        _httpmanager.isIpAddressNull()) {
+      controlWidget = const Text('Server Data Receiving');
+      //연결 준비 완료
+    } else if (_bluetoothmanager.deviceIsConnected() &&
+        !_httpmanager.isIpAddressNull()) {
+      controlWidget = OnConnectWidget(
+        httpmanager: _httpmanager,
+        bluetoothmanager: _bluetoothmanager,
+        pagedata: _pagedata,
+        drawingData: _drawingData,
+      );
+    } else {
+      controlWidget = const Text('Error');
+    }
+
     return Scaffold(
       body: Container(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            const Stack(
-              children: [
-                MainIcons(),
-                // Positioned(
-                //   bottom: 20,
-                //   left: 0,
-                //   right: 0,
-                //   child: TextButton(
-                //     onPressed: () {
-                //       _bluetoothmanager.requestPermission();
-                //     },
-                //     child: const Text("Permissions"),
-                //   ),
-                // ),
-              ],
-            ),
-            (_bluetoothmanager.deviceIsNotConnected())
-                ? PairedBluetoothDevicesWidget(
-                    bluetoothmanager: _bluetoothmanager,
-                  )
-                : OnConnectWidget(
-                    httpmanager: _httpmanager,
-                    bluetoothmanager: _bluetoothmanager,
-                    pagedata: _pagedata,
-                    drawingData: _drawingData,
-                  ),
+            const MainIcons(),
+            controlWidget,
           ],
         ),
       ),

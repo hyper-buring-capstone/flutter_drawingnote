@@ -29,40 +29,36 @@ class OnConnectWidget extends StatefulWidget {
 }
 
 class _OnConnectWidgetState extends State<OnConnectWidget> {
+  void enter() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NotePage(
+          bluetoothmanager: widget._bluetoothmanager,
+          httpmanager: widget._httpmanager,
+          pagedata: widget._pagedata,
+          drawingData: widget._drawingData,
+        ),
+      ), //클릭시 이동
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        (widget._bluetoothmanager.deviceIsConnected() &&
-                !widget._httpmanager.isIpAddressNull())
-            ? const Text('Ready to connect')
-            : Text(widget._bluetoothmanager.deviceStatusString),
-        ElevatedButton(
-            onPressed: (widget._bluetoothmanager.deviceIsConnected() &&
-                    !widget._httpmanager.isIpAddressNull())
-                ? () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => NotePage(
-                          bluetoothmanager: widget._bluetoothmanager,
-                          httpmanager: widget._httpmanager,
-                          pagedata: widget._pagedata,
-                          drawingData: widget._drawingData,
-                        ),
-                      ), //클릭시 이동
-                    );
-                  }
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: (widget._bluetoothmanager.deviceIsConnected() &&
-                      !widget._httpmanager.isIpAddressNull())
-                  ? const Color(0xFF9EC6E0)
-                  : null,
-            ),
-            child: const Text("Start")),
-      ],
+    return GestureDetector(
+      onTap: enter,
+      child: const Padding(
+        padding: EdgeInsets.all(20.0),
+        child: Text(
+          "시작",
+          style: TextStyle(
+            color: Colors.black,
+            fontFamily: 'title_font',
+            fontSize: 60,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
   }
 }

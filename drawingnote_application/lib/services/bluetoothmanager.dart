@@ -118,6 +118,10 @@ class Bluetoothmanager {
     return deviceStatus.value == 0;
   }
 
+  bool deviceIsConnecting() {
+    return deviceStatus.value == 1;
+  }
+
   ///device 연결 함수
   Future<void> connectDevice(String address) async {
     //이미 연결 중인 경우 return
