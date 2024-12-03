@@ -259,10 +259,17 @@ class _NotePageState extends State<NotePage> {
                           MediaQuery.of(context).size.height),
                     );
 
-                    if (kDebugMode) {
-                      print('Top Left: $topLeft');
-                      print('Bottom Right: $bottomRight');
-                    }
+                    topLeft = _convertToRelativePosition(topLeft);
+                    bottomRight = _convertToRelativePosition(bottomRight);
+
+                    // if (kDebugMode) {
+                    //   print('Top Left: $topLeft');
+                    //   print('Bottom Right: $bottomRight');
+                    // }
+
+                    //panning 데이터 전송
+                    widget._bluetoothmanager.sendData(
+                        "${BluetoothHeaderformat.panningHeader}&&${topLeft.dx} ${topLeft.dy}, ${bottomRight.dx} ${bottomRight.dy}\r\n");
                   }
 
                   if (_allowToDraw) {
