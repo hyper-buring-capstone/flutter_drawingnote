@@ -11,10 +11,11 @@ class DrawingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-      ..color = Colors.blue.withOpacity(0.3)
+      ..color = Colors.black
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 10.0;
+      ..isAntiAlias = true
+      ..strokeWidth = 3.0;
 
     for (var line in lines) {
       Path path = Path();
