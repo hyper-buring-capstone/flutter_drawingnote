@@ -156,11 +156,6 @@ class _NotePageState extends State<NotePage> {
           _transformationController.toScene(_imagePositionTopLeft!);
       _imagePositionBottomRight =
           _transformationController.toScene(_imagePositionBottomRight!);
-
-      // if (kDebugMode) {
-      //   print("image position topLeft: $_imagePositionTopLeft");
-      //   print("image position bottomRight: $_imagePositionBottomRight");
-      // }
     }
   }
 
@@ -254,6 +249,20 @@ class _NotePageState extends State<NotePage> {
                     }
                     widget._bluetoothmanager
                         .sendData("${BluetoothHeaderformat.endstring}\r\n");
+                  }
+                  //panning 모드일 때 좌표 전송
+                  else if (widget._drawingData.isPanning) {
+                    Offset topLeft =
+                        _transformationController.toScene(Offset.zero);
+                    Offset bottomRight = _transformationController.toScene(
+                      Offset(MediaQuery.of(context).size.width,
+                          MediaQuery.of(context).size.height),
+                    );
+
+                    if (kDebugMode) {
+                      print('Top Left: $topLeft');
+                      print('Bottom Right: $bottomRight');
+                    }
                   }
 
                   if (_allowToDraw) {
