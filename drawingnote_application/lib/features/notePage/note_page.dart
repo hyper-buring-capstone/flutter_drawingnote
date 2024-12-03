@@ -268,8 +268,8 @@ class _NotePageState extends State<NotePage> {
                     // }
 
                     //panning 데이터 전송
-                    widget._bluetoothmanager.sendData(
-                        "${BluetoothHeaderformat.panningHeader}&&${topLeft.dx} ${topLeft.dy}, ${bottomRight.dx} ${bottomRight.dy}\r\n");
+                    //   widget._bluetoothmanager.sendData(
+                    //       "${BluetoothHeaderformat.panningHeader}&&${topLeft.dx} ${topLeft.dy}, ${bottomRight.dx} ${bottomRight.dy}\r\n");
                   }
 
                   if (_allowToDraw) {

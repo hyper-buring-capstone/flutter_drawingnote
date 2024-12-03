@@ -11,9 +11,10 @@ class DrawingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-      ..color = Colors.black
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 3.0;
+      ..color = Colors.blue.withOpacity(0.3)
+      ..strokeCap = StrokeCap.butt
+      ..maskFilter = const MaskFilter.blur(BlurStyle.solid, 5)
+      ..strokeWidth = 10.0;
 
     for (var line in lines) {
       for (int i = 0; i < line.length - 1; i++) {
