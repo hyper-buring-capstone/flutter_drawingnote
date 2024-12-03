@@ -10,6 +10,8 @@ dependencies:
   bluetooth_classic: ^0.0.2
   flutter:
     sdk: flutter
+  flutter_expandable_fab: ^2.3.0
+  flutter_floating_bottom_bar: ^1.2.1+1
   flutter_native_splash: ^2.4.3
   http: ^1.2.2
 
