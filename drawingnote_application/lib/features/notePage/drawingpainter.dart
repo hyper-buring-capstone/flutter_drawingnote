@@ -12,16 +12,20 @@ class DrawingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
       ..color = Colors.blue.withOpacity(0.3)
-      ..strokeCap = StrokeCap.butt
-      ..maskFilter = const MaskFilter.blur(BlurStyle.solid, 5)
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke
       ..strokeWidth = 10.0;
 
     for (var line in lines) {
+      Path path = Path();
+      path.moveTo(line[0]!.dx, line[0]!.dy);
       for (int i = 0; i < line.length - 1; i++) {
         if (line[i] != null && line[i + 1] != null) {
-          canvas.drawLine(line[i]!, line[i + 1]!, paint);
+          path.quadraticBezierTo(
+              line[i]!.dx, line[i]!.dy, line[i + 1]!.dx, line[i + 1]!.dy);
         }
       }
+      canvas.drawPath(path, paint);
     }
   }
 
