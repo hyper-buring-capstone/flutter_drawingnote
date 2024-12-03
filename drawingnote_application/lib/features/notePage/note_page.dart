@@ -297,11 +297,11 @@ class _NotePageState extends State<NotePage> {
                     ],
                   ),
                 ),
-                const Positioned(
+                Positioned(
                   right: 10,
                   bottom: 0,
                   top: 0,
-                  child: DrawingmenuWidget(),
+                  child: DrawingmenuWidget(drawingData: widget._drawingData),
                 )
               ],
             ),

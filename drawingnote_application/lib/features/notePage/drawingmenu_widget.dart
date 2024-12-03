@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import '../../datas/drawingdata.dart';
 
 class DrawingmenuWidget extends StatefulWidget {
-  const DrawingmenuWidget({super.key});
+  final DrawingData _drawingData;
+
+  const DrawingmenuWidget({
+    super.key,
+    required DrawingData drawingData,
+  }) : _drawingData = drawingData;
 
   @override
   State<DrawingmenuWidget> createState() => _DrawingmenuWidgetState();
@@ -50,10 +55,19 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                 ),
               ),
               FloatingActionButton(
-                onPressed: () {},
+                onPressed: () {
+                  widget._drawingData.switchPanningMode();
+                },
                 backgroundColor: const Color(0xFFFFFFFF),
                 shape: const CircleBorder(),
-                child: const Icon(Icons.mouse),
+                child: widget._drawingData.isPanning
+                    ? const Icon(
+                        Icons.mouse,
+                        color: Color(0xFF034373),
+                      )
+                    : const Icon(
+                        Icons.mouse,
+                      ),
               ),
             ],
           ),
