@@ -2,14 +2,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
+import 'onelinedata.dart';
+
 enum ControlMode { draw, erase, pan }
 
 /// 모바일 화면 그림 데이터 관리 클래스
 class DrawingData {
-  List<List<Offset?>> linesData = [];
+  List<OneLineData> linesData = [];
   List<Offset?> currentLine = [];
   bool isEraser = false; // 지우개 모드 변수
   bool isPanning = false; // 화면 이동 모드 변수
+
+  StrokeSize penStrokeSize = StrokeSize.ll; //펜 굵기
+  int penColor = 0x4D000000; //펜 색깔
 
   ControlMode controlMode = ControlMode.draw;
 
@@ -51,14 +56,18 @@ class DrawingData {
 
   ///currentLine을 lineData에 초과
   void addNewLine() {
-    linesData.add(currentLine);
+    linesData.add(OneLineData(
+      points: currentLine,
+      color: penColor,
+      strokeSize: penStrokeSize,
+    ));
   }
 
   ///line 삭제 함수
   ///poisiton 주변의 line을 삭제한다
   ///removingDistance : 삭제가 작용하는 범위
   void eraseLine(Offset position) {
-    linesData.removeWhere((line) => line.any((point) =>
+    linesData.removeWhere((line) => line.points.any((point) =>
         point != null && (point - position).distance < removingDistance));
   }
 
@@ -86,7 +95,7 @@ class DrawingData {
       return;
     }
 
-    List<List<Offset?>> newLinesData = [];
+    List<OneLineData> newLinesData = [];
     List<String> fetchedLines = fetchedLinesData.split('&');
 
     for (var s in fetchedLines) {
@@ -105,7 +114,13 @@ class DrawingData {
       List<Offset?> newLine = [];
       newLine.addAll(decodedLineData);
       newLine.add(null);
-      newLinesData.add(newLine);
+
+      newLinesData.add(OneLineData(
+          points: newLine,
+          color: 0xFF000000, //임시로 넣은 값, json['color']
+          strokeSize:
+              StrokeSize.l //임시로 넣은 값, StrokeSize.values[json['strokeSize']]
+          ));
     }
     if (kDebugMode) {
       print('newLinesData : $newLinesData');

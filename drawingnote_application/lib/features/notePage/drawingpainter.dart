@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../datas/onelinedata.dart';
 
 // Painter 클래스
 class DrawingPainter extends CustomPainter {
-  final List<List<Offset?>> lines;
+  final List<OneLineData> linesData;
 
   final Offset offset;
 
-  DrawingPainter(this.lines, {this.offset = Offset.zero});
+  DrawingPainter(this.linesData, {this.offset = Offset.zero});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -14,16 +15,18 @@ class DrawingPainter extends CustomPainter {
       ..color = Colors.black
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke
-      ..isAntiAlias = true
-      ..strokeWidth = 3.0;
+      ..isAntiAlias = true;
 
-    for (var line in lines) {
+    for (var line in linesData) {
+      paint.color = Color(line.color);
+      paint.strokeWidth = line.strokeWidth;
+
       Path path = Path();
-      path.moveTo(line[0]!.dx, line[0]!.dy);
-      for (int i = 0; i < line.length - 1; i++) {
-        if (line[i] != null && line[i + 1] != null) {
-          path.quadraticBezierTo(
-              line[i]!.dx, line[i]!.dy, line[i + 1]!.dx, line[i + 1]!.dy);
+      path.moveTo(line.points[0]!.dx, line.points[0]!.dy);
+      for (int i = 0; i < line.points.length - 1; i++) {
+        if (line.points[i] != null && line.points[i + 1] != null) {
+          path.quadraticBezierTo(line.points[i]!.dx, line.points[i]!.dy,
+              line.points[i + 1]!.dx, line.points[i + 1]!.dy);
         }
       }
       canvas.drawPath(path, paint);
