@@ -17,7 +17,7 @@ class DrawingData {
   StrokeSize brushStrokeSize = StrokeSize.l; //브러쉬 굵기
 
   String penColorValue = '000000'; //펜 색깔 값
-  String brushColorValue = '000000'; //브러쉬 색깔 값
+  String brushColorValue = 'FFE600'; //브러쉬 색깔 값
   int penColor = 0xFF000000; //실제 적용되는 펜 색깔
 
   ControlMode controlMode = ControlMode.none;
@@ -60,7 +60,6 @@ class DrawingData {
         break;
     }
   }
-
   //--------------------------------------------------------------------------------
   // lineData 관련 함수
   //--------------------------------------------------------------------------------

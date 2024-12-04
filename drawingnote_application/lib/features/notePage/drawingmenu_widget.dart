@@ -63,6 +63,7 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                   IconButton(
                     onPressed: () {
                       if (widget._drawingData.controlMode != ControlMode.pen) {
+                        _penMenuToggle = false;
                         widget._onSwitchDrawingMode(1);
                       } else {
                         if (widget._drawingData.isPanning) {
@@ -90,6 +91,7 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                     onPressed: () {
                       if (widget._drawingData.controlMode !=
                           ControlMode.brush) {
+                        _penMenuToggle = false;
                         widget._onSwitchDrawingMode(2);
                       } else {
                         if (widget._drawingData.isPanning) {
