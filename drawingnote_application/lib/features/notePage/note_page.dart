@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -169,18 +171,27 @@ class _NotePageState extends State<NotePage> {
 
   //drawing mode switch
   void _switchDrawingMode(int mode) {
-    //블루투스 전송
-
     setState(() {
       widget._drawingData.isPanning = false;
       widget._drawingData.changeControlMode(mode);
     });
+
+    //블루투스 전송
+    if (widget._drawingData.controlMode == ControlMode.pen) {
+      widget._bluetoothmanager.sendData(
+          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.penColorValue}"); //color 전송
+      widget._bluetoothmanager.sendData(
+          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.penStrokeSize.name}"); //width 전송
+    } else if (widget._drawingData.controlMode == ControlMode.brush) {
+      widget._bluetoothmanager.sendData(
+          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.brushColorValue}"); //color 전송
+      widget._bluetoothmanager.sendData(
+          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.brushStrokeSize.name}"); //width 전송
+    }
   }
 
   //색 변경
   void _switchPenColor(String color) {
-    //블루투스 전송
-
     setState(() {
       if (widget._drawingData.controlMode == ControlMode.pen) {
         widget._drawingData.penColorValue = color;
@@ -190,11 +201,19 @@ class _NotePageState extends State<NotePage> {
         widget._drawingData.penColor = int.parse('0x4D$color');
       }
     });
+
+    //블루투스 전송
+    if (widget._drawingData.controlMode == ControlMode.pen) {
+      widget._bluetoothmanager.sendData(
+          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.penColorValue}"); //color 전송
+    } else if (widget._drawingData.controlMode == ControlMode.brush) {
+      widget._bluetoothmanager.sendData(
+          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.brushColorValue}"); //color 전송
+    }
   }
 
   //굵기 변경
   void _switchPenWidth(int widthMode) {
-    //블루투스 전송
     StrokeSize newStrokeSize = StrokeSize.m;
 
     switch (widthMode) {
@@ -223,6 +242,15 @@ class _NotePageState extends State<NotePage> {
       setState(() {
         widget._drawingData.brushStrokeSize = newStrokeSize;
       });
+    }
+
+    //블루투스 전송
+    if (widget._drawingData.controlMode == ControlMode.pen) {
+      widget._bluetoothmanager.sendData(
+          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.penStrokeSize.name}"); //width 전송
+    } else if (widget._drawingData.controlMode == ControlMode.brush) {
+      widget._bluetoothmanager.sendData(
+          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.brushStrokeSize.name}"); //width 전송
     }
   }
 
