@@ -14,5 +14,8 @@ class BluetoothHeaderformat {
   //static String drawigHeader = "HEADER:DRAWING (panweight) (pancolor HEXCODE rgba)" //펜 변경 구현 후
   static String eraserHeader = "HEADER:ERASER"; //지우개 data 송신
   static String panningHeader = "HEADER:PANNING"; //화면 이동 데이터 포멧
+  static String widthHeader = "HEADER:WIDTH"; //펜 굵기 변경 데이터 포멧
+  static String colorHeader = "HEADER:COLOR"; //펜 색상 변경 데이터 포멧
   static String endstring = "END"; //송신 종료
+  static String seperator = "&&"; //데이터 구분자
 }

@@ -2,16 +2,25 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-enum ControlMode { draw, erase, pan }
+import 'onelinedata.dart';
+
+enum ControlMode { none, pen, brush, erase }
 
 /// 모바일 화면 그림 데이터 관리 클래스
 class DrawingData {
-  List<List<Offset?>> linesData = [];
+  List<OneLineData> linesData = [];
   List<Offset?> currentLine = [];
   bool isEraser = false; // 지우개 모드 변수
   bool isPanning = false; // 화면 이동 모드 변수
 
-  ControlMode controlMode = ControlMode.draw;
+  StrokeSize penStrokeSize = StrokeSize.m; //펜 굵기
+  StrokeSize brushStrokeSize = StrokeSize.l; //브러쉬 굵기
+
+  String penColorValue = '000000'; //펜 색깔 값
+  String brushColorValue = 'FFE600'; //브러쉬 색깔 값
+  int penColor = 0xFF000000; //실제 적용되는 펜 색깔
+
+  ControlMode controlMode = ControlMode.none;
 
   final removingDistance = 5.0;
 
@@ -29,36 +38,54 @@ class DrawingData {
   /// draw : 그리기 모드
   /// erase : 지우개 모드
   /// pan : 화면 이동 모드
-  void changeControlMode() {
-    controlMode =
-        ControlMode.values[(controlMode.index + 1) % ControlMode.values.length];
-
-    if (controlMode == ControlMode.draw) {
-      isEraser = false;
-      isPanning = false;
-    } else if (controlMode == ControlMode.erase) {
-      isEraser = true;
-      isPanning = false;
-    } else if (controlMode == ControlMode.pan) {
-      isEraser = false;
-      isPanning = true;
+  void changeControlMode(int controlModeValue) {
+    switch (controlModeValue) {
+      case 0:
+        controlMode = ControlMode.none;
+        isEraser = false;
+        break;
+      case 1:
+        controlMode = ControlMode.pen;
+        penColor = int.parse('0xFF$penColorValue');
+        isEraser = false;
+        break;
+      case 2:
+        controlMode = ControlMode.brush;
+        penColor = int.parse('0x4D$brushColorValue');
+        isEraser = false;
+        break;
+      default:
+        controlMode = ControlMode.erase;
+        isEraser = true;
+        break;
     }
   }
-
   //--------------------------------------------------------------------------------
   // lineData 관련 함수
   //--------------------------------------------------------------------------------
 
   ///currentLine을 lineData에 초과
   void addNewLine() {
-    linesData.add(currentLine);
+    if (controlMode == ControlMode.pen) {
+      linesData.add(OneLineData(
+        points: currentLine,
+        color: penColor,
+        strokeSize: penStrokeSize,
+      ));
+    } else if (controlMode == ControlMode.brush) {
+      linesData.add(OneLineData(
+        points: currentLine,
+        color: penColor,
+        strokeSize: brushStrokeSize,
+      ));
+    }
   }
 
   ///line 삭제 함수
   ///poisiton 주변의 line을 삭제한다
   ///removingDistance : 삭제가 작용하는 범위
   void eraseLine(Offset position) {
-    linesData.removeWhere((line) => line.any((point) =>
+    linesData.removeWhere((line) => line.points.any((point) =>
         point != null && (point - position).distance < removingDistance));
   }
 
@@ -86,7 +113,7 @@ class DrawingData {
       return;
     }
 
-    List<List<Offset?>> newLinesData = [];
+    List<OneLineData> newLinesData = [];
     List<String> fetchedLines = fetchedLinesData.split('&');
 
     for (var s in fetchedLines) {
@@ -105,7 +132,17 @@ class DrawingData {
       List<Offset?> newLine = [];
       newLine.addAll(decodedLineData);
       newLine.add(null);
-      newLinesData.add(newLine);
+
+      StrokeSize jsonStrokeSize =
+          StrokeSize.values.firstWhere((e) => e.name == json['fontsize']);
+
+      newLinesData.add(
+        OneLineData(
+          points: newLine,
+          color: int.parse('0x${json['color']}'),
+          strokeSize: jsonStrokeSize,
+        ),
+      );
     }
     if (kDebugMode) {
       print('newLinesData : $newLinesData');
