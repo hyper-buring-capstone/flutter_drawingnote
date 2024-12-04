@@ -4,13 +4,16 @@ import '../../datas/drawingdata.dart';
 class DrawingmenuWidget extends StatefulWidget {
   final DrawingData _drawingData;
   final VoidCallback _onTogglePanningMode;
+  final void Function(int) _onSwitchDrawingMode;
 
   const DrawingmenuWidget({
     super.key,
     required DrawingData drawingData,
     required VoidCallback onTogglePanningMode,
+    required void Function(int) onSwitchDrawingMode,
   })  : _drawingData = drawingData,
-        _onTogglePanningMode = onTogglePanningMode;
+        _onTogglePanningMode = onTogglePanningMode,
+        _onSwitchDrawingMode = onSwitchDrawingMode;
 
   @override
   State<DrawingmenuWidget> createState() => _DrawingmenuWidgetState();
@@ -40,24 +43,51 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.mode,
-                  color: Colors.black,
-                  size: 30,
-                ),
+                onPressed: () {
+                  widget._onSwitchDrawingMode(1);
+                },
+                icon: (widget._drawingData.controlMode == ControlMode.pen)
+                    ? const Icon(
+                        Icons.mode,
+                        color: Color(0xFF9EC6E0),
+                        size: 30,
+                      )
+                    : const Icon(
+                        Icons.mode,
+                        color: Colors.black,
+                        size: 30,
+                      ),
               ),
               IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.brush,
-                  color: Colors.black,
-                  size: 30,
-                ),
+                onPressed: () {
+                  widget._onSwitchDrawingMode(2);
+                },
+                icon: (widget._drawingData.controlMode == ControlMode.brush)
+                    ? const Icon(
+                        Icons.brush,
+                        color: Color(0xFF9EC6E0),
+                        size: 30,
+                      )
+                    : const Icon(
+                        Icons.brush,
+                        color: Colors.black,
+                        size: 30,
+                      ),
               ),
               IconButton(
-                onPressed: () {},
-                icon: Image.asset('assets/icon_eraser.png', width: 25),
+                onPressed: () {
+                  widget._onSwitchDrawingMode(3);
+                },
+                icon: (widget._drawingData.controlMode == ControlMode.erase)
+                    ? Image.asset(
+                        'assets/icon_eraser.png',
+                        width: 25,
+                        color: const Color(0xFF9EC6E0),
+                      )
+                    : Image.asset(
+                        'assets/icon_eraser.png',
+                        width: 25,
+                      ),
               ),
               FloatingActionButton(
                 onPressed: widget._onTogglePanningMode,

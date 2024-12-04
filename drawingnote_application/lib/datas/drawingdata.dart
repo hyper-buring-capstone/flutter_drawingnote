@@ -13,7 +13,7 @@ class DrawingData {
   bool isEraser = false; // 지우개 모드 변수
   bool isPanning = false; // 화면 이동 모드 변수
 
-  StrokeSize penStrokeSize = StrokeSize.ll; //펜 굵기
+  StrokeSize penStrokeSize = StrokeSize.m; //펜 굵기
   int penColor = 0x4D000000; //펜 색깔
 
   ControlMode controlMode = ControlMode.none;
@@ -42,10 +42,14 @@ class DrawingData {
         break;
       case 1:
         controlMode = ControlMode.pen;
+        penStrokeSize = StrokeSize.ss;
+        penColor = 0xFF000000;
         isEraser = false;
         break;
       case 2:
         controlMode = ControlMode.brush;
+        penStrokeSize = StrokeSize.ll;
+        penColor = 0x4DFFFF00;
         isEraser = false;
         break;
       default:

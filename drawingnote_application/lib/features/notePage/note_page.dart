@@ -166,6 +166,18 @@ class _NotePageState extends State<NotePage> {
     });
   }
 
+  //drawing mode switch
+  void _switchDrawingMode(int mode) {
+    setState(() {
+      widget._drawingData.changeControlMode(mode);
+    });
+
+    //모드 변경 시 블루투스 전송
+  }
+
+  //TODO 색, 굵기 변경
+  //drawingData에 반영하고 블루투스 전송
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -187,7 +199,8 @@ class _NotePageState extends State<NotePage> {
                           _transformationController.toScene(details.focalPoint);
 
                       //이미지 안에서 시작할때만 draw를 허용
-                      if (_isPositionWithinImage(position)) {
+                      if (_isPositionWithinImage(position) &&
+                          widget._drawingData.controlMode != ControlMode.none) {
                         _allowToDraw = true;
                       }
 
@@ -298,6 +311,7 @@ class _NotePageState extends State<NotePage> {
                   child: DrawingmenuWidget(
                     drawingData: widget._drawingData,
                     onTogglePanningMode: _switchPanningMode,
+                    onSwitchDrawingMode: _switchDrawingMode,
                   ),
                 )
               ],
