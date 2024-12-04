@@ -169,22 +169,24 @@ class _NotePageState extends State<NotePage> {
 
   //drawing mode switch
   void _switchDrawingMode(int mode) {
+    //블루투스 전송
+
     setState(() {
       widget._drawingData.isPanning = false;
       widget._drawingData.changeControlMode(mode);
     });
-
-    //모드 변경 시 블루투스 전송
   }
 
   //색 변경
   void _switchPenColor(String color) {
-    setState(() {
-      widget._drawingData.penColorValue = color;
+    //블루투스 전송
 
+    setState(() {
       if (widget._drawingData.controlMode == ControlMode.pen) {
+        widget._drawingData.penColorValue = color;
         widget._drawingData.penColor = int.parse('0xFF$color');
       } else if (widget._drawingData.controlMode == ControlMode.brush) {
+        widget._drawingData.brushColorValue = color;
         widget._drawingData.penColor = int.parse('0x4D$color');
       }
     });
@@ -192,25 +194,36 @@ class _NotePageState extends State<NotePage> {
 
   //굵기 변경
   void _switchPenWidth(int widthMode) {
+    //블루투스 전송
+    StrokeSize newStrokeSize = StrokeSize.m;
+
     switch (widthMode) {
       case 0:
-        widget._drawingData.penStrokeSize = StrokeSize.ss;
+        newStrokeSize = StrokeSize.ss;
         break;
       case 1:
-        widget._drawingData.penStrokeSize = StrokeSize.s;
+        newStrokeSize = StrokeSize.s;
         break;
       case 2:
-        widget._drawingData.penStrokeSize = StrokeSize.m;
+        newStrokeSize = StrokeSize.m;
         break;
       case 3:
-        widget._drawingData.penStrokeSize = StrokeSize.l;
+        newStrokeSize = StrokeSize.l;
         break;
       case 4:
-        widget._drawingData.penStrokeSize = StrokeSize.ll;
+        newStrokeSize = StrokeSize.ll;
         break;
     }
 
-    setState(() {});
+    if (widget._drawingData.controlMode == ControlMode.pen) {
+      setState(() {
+        widget._drawingData.penStrokeSize = newStrokeSize;
+      });
+    } else if (widget._drawingData.controlMode == ControlMode.brush) {
+      setState(() {
+        widget._drawingData.brushStrokeSize = newStrokeSize;
+      });
+    }
   }
 
   @override

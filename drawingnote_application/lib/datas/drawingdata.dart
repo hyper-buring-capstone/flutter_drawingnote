@@ -14,7 +14,10 @@ class DrawingData {
   bool isPanning = false; // 화면 이동 모드 변수
 
   StrokeSize penStrokeSize = StrokeSize.m; //펜 굵기
+  StrokeSize brushStrokeSize = StrokeSize.l; //브러쉬 굵기
+
   String penColorValue = '000000'; //펜 색깔 값
+  String brushColorValue = '000000'; //브러쉬 색깔 값
   int penColor = 0xFF000000; //실제 적용되는 펜 색깔
 
   ControlMode controlMode = ControlMode.none;
@@ -48,7 +51,7 @@ class DrawingData {
         break;
       case 2:
         controlMode = ControlMode.brush;
-        penColor = int.parse('0x4D$penColorValue');
+        penColor = int.parse('0x4D$brushColorValue');
         isEraser = false;
         break;
       default:
@@ -64,11 +67,19 @@ class DrawingData {
 
   ///currentLine을 lineData에 초과
   void addNewLine() {
-    linesData.add(OneLineData(
-      points: currentLine,
-      color: penColor,
-      strokeSize: penStrokeSize,
-    ));
+    if (controlMode == ControlMode.pen) {
+      linesData.add(OneLineData(
+        points: currentLine,
+        color: penColor,
+        strokeSize: penStrokeSize,
+      ));
+    } else if (controlMode == ControlMode.brush) {
+      linesData.add(OneLineData(
+        points: currentLine,
+        color: penColor,
+        strokeSize: brushStrokeSize,
+      ));
+    }
   }
 
   ///line 삭제 함수

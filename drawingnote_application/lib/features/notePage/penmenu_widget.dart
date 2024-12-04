@@ -216,7 +216,7 @@ class _PenmenuWidgetState extends State<PenmenuWidget> {
                       height: 25,
                       width: 12,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
+                        borderRadius: BorderRadius.circular(6),
                         color: Colors.black,
                       ),
                     ),
