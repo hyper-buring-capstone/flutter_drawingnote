@@ -6,15 +6,21 @@ class DrawingmenuWidget extends StatefulWidget {
   final DrawingData _drawingData;
   final VoidCallback _onTogglePanningMode;
   final void Function(int) _onSwitchDrawingMode;
+  final void Function(String) _onSwitchPenColor;
+  final void Function(int) _onSwitchPenWidth;
 
   const DrawingmenuWidget({
     super.key,
     required DrawingData drawingData,
     required VoidCallback onTogglePanningMode,
     required void Function(int) onSwitchDrawingMode,
+    required void Function(String) onSwitchPenColor,
+    required void Function(int) onSwitchPenWidth,
   })  : _drawingData = drawingData,
         _onTogglePanningMode = onTogglePanningMode,
-        _onSwitchDrawingMode = onSwitchDrawingMode;
+        _onSwitchDrawingMode = onSwitchDrawingMode,
+        _onSwitchPenColor = onSwitchPenColor,
+        _onSwitchPenWidth = onSwitchPenWidth;
 
   @override
   State<DrawingmenuWidget> createState() => _DrawingmenuWidgetState();
@@ -27,7 +33,13 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _penMenuToggle ? const PenmenuWidget() : Container(),
+        _penMenuToggle
+            ? PenmenuWidget(
+                drawingData: widget._drawingData,
+                onSwitchPenColor: widget._onSwitchPenColor,
+                onSwitchPenWidth: widget._onSwitchPenWidth,
+              )
+            : Container(),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 10),
           child: Container(
@@ -53,9 +65,13 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                       if (widget._drawingData.controlMode != ControlMode.pen) {
                         widget._onSwitchDrawingMode(1);
                       } else {
-                        setState(() {
-                          _penMenuToggle = !_penMenuToggle;
-                        });
+                        if (widget._drawingData.isPanning) {
+                          widget._onSwitchDrawingMode(1);
+                        } else {
+                          setState(() {
+                            _penMenuToggle = !_penMenuToggle;
+                          });
+                        }
                       }
                     },
                     icon: (widget._drawingData.controlMode == ControlMode.pen)
@@ -76,9 +92,13 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                           ControlMode.brush) {
                         widget._onSwitchDrawingMode(2);
                       } else {
-                        setState(() {
-                          _penMenuToggle = !_penMenuToggle;
-                        });
+                        if (widget._drawingData.isPanning) {
+                          widget._onSwitchDrawingMode(2);
+                        } else {
+                          setState(() {
+                            _penMenuToggle = !_penMenuToggle;
+                          });
+                        }
                       }
                     },
                     icon: (widget._drawingData.controlMode == ControlMode.brush)

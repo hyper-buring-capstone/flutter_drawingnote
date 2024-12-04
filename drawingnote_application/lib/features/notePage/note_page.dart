@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'drawingpainter.dart';
 import 'drawingmenu_widget.dart';
+import '../../datas/onelinedata.dart';
 import '../../services/httpmanager.dart';
 import '../../services/bluetoothmanager.dart';
 import '../../datas/drawingdata.dart';
@@ -169,14 +170,42 @@ class _NotePageState extends State<NotePage> {
   //drawing mode switch
   void _switchDrawingMode(int mode) {
     setState(() {
+      widget._drawingData.isPanning = false;
       widget._drawingData.changeControlMode(mode);
     });
 
     //모드 변경 시 블루투스 전송
   }
 
-  //TODO 색, 굵기 변경
-  //drawingData에 반영하고 블루투스 전송
+  //색 변경
+  void _switchPenColor(String color) {
+    setState(() {
+      widget._drawingData.penColorValue = color;
+    });
+  }
+
+  //굵기 변경
+  void _switchPenWidth(int widthMode) {
+    switch (widthMode) {
+      case 0:
+        widget._drawingData.penStrokeSize = StrokeSize.ss;
+        break;
+      case 1:
+        widget._drawingData.penStrokeSize = StrokeSize.s;
+        break;
+      case 2:
+        widget._drawingData.penStrokeSize = StrokeSize.m;
+        break;
+      case 3:
+        widget._drawingData.penStrokeSize = StrokeSize.l;
+        break;
+      case 4:
+        widget._drawingData.penStrokeSize = StrokeSize.ll;
+        break;
+    }
+
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -312,6 +341,8 @@ class _NotePageState extends State<NotePage> {
                     drawingData: widget._drawingData,
                     onTogglePanningMode: _switchPanningMode,
                     onSwitchDrawingMode: _switchDrawingMode,
+                    onSwitchPenColor: _switchPenColor,
+                    onSwitchPenWidth: _switchPenWidth,
                   ),
                 )
               ],

@@ -14,7 +14,8 @@ class DrawingData {
   bool isPanning = false; // 화면 이동 모드 변수
 
   StrokeSize penStrokeSize = StrokeSize.m; //펜 굵기
-  int penColor = 0x4D000000; //펜 색깔
+  String penColorValue = '000000'; //펜 색깔 값
+  int penColor = 0xFF000000; //실제 적용되는 펜 색깔
 
   ControlMode controlMode = ControlMode.none;
 
@@ -42,14 +43,12 @@ class DrawingData {
         break;
       case 1:
         controlMode = ControlMode.pen;
-        penStrokeSize = StrokeSize.ss;
-        penColor = 0xFF000000;
+        penColor = int.parse('0xFF$penColorValue');
         isEraser = false;
         break;
       case 2:
         controlMode = ControlMode.brush;
-        penStrokeSize = StrokeSize.ll;
-        penColor = 0x4DFFFF00;
+        penColor = int.parse('0x4D$penColorValue');
         isEraser = false;
         break;
       default:
