@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 
 import 'drawingpainter.dart';
 import 'drawingmenu_widget.dart';
@@ -94,18 +93,6 @@ class _NotePageState extends State<NotePage> {
     super.dispose();
   }
 
-  /// controlMode에 따라 floatingActionButton의 아이콘 변경
-  IconData _setFloatingButtonIcon() {
-    if (widget._drawingData.controlMode == ControlMode.draw) {
-      return Icons.brush;
-    } else if (widget._drawingData.controlMode == ControlMode.erase) {
-      return Icons.cleaning_services;
-    } else if (widget._drawingData.controlMode == ControlMode.pan) {
-      return Icons.mouse;
-    }
-    return Icons.no_cell;
-  }
-
   //image 랜더링 후 실행하는 함수
   // 이미지 로딩 완료 후 _setImageLocationInfo 호출
 
@@ -170,6 +157,13 @@ class _NotePageState extends State<NotePage> {
           position.dy < _imagePositionBottomRight!.dy;
     }
     return false;
+  }
+
+  //panning mode switch
+  void _switchPanningMode() {
+    setState(() {
+      widget._drawingData.switchPanningMode();
+    });
   }
 
   @override
@@ -301,7 +295,10 @@ class _NotePageState extends State<NotePage> {
                   right: 10,
                   bottom: 0,
                   top: 0,
-                  child: DrawingmenuWidget(drawingData: widget._drawingData),
+                  child: DrawingmenuWidget(
+                    drawingData: widget._drawingData,
+                    onTogglePanningMode: _switchPanningMode,
+                  ),
                 )
               ],
             ),

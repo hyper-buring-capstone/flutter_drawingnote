@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'onelinedata.dart';
 
-enum ControlMode { draw, erase, pan }
+enum ControlMode { none, pen, brush, erase }
 
 /// 모바일 화면 그림 데이터 관리 클래스
 class DrawingData {
@@ -16,7 +16,7 @@ class DrawingData {
   StrokeSize penStrokeSize = StrokeSize.ll; //펜 굵기
   int penColor = 0x4D000000; //펜 색깔
 
-  ControlMode controlMode = ControlMode.draw;
+  ControlMode controlMode = ControlMode.none;
 
   final removingDistance = 5.0;
 
@@ -34,19 +34,24 @@ class DrawingData {
   /// draw : 그리기 모드
   /// erase : 지우개 모드
   /// pan : 화면 이동 모드
-  void changeControlMode() {
-    controlMode =
-        ControlMode.values[(controlMode.index + 1) % ControlMode.values.length];
-
-    if (controlMode == ControlMode.draw) {
-      isEraser = false;
-      isPanning = false;
-    } else if (controlMode == ControlMode.erase) {
-      isEraser = true;
-      isPanning = false;
-    } else if (controlMode == ControlMode.pan) {
-      isEraser = false;
-      isPanning = true;
+  void changeControlMode(int controlModeValue) {
+    switch (controlModeValue) {
+      case 0:
+        controlMode = ControlMode.none;
+        isEraser = false;
+        break;
+      case 1:
+        controlMode = ControlMode.pen;
+        isEraser = false;
+        break;
+      case 2:
+        controlMode = ControlMode.brush;
+        isEraser = false;
+        break;
+      default:
+        controlMode = ControlMode.erase;
+        isEraser = true;
+        break;
     }
   }
 
