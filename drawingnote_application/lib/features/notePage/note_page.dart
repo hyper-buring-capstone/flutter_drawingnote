@@ -179,14 +179,14 @@ class _NotePageState extends State<NotePage> {
     //블루투스 전송
     if (widget._drawingData.controlMode == ControlMode.pen) {
       widget._bluetoothmanager.sendData(
-          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.penColorValue}"); //color 전송
+          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.penColorValue}\r\n"); //color 전송
       widget._bluetoothmanager.sendData(
-          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.penStrokeSize.name}"); //width 전송
+          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.penStrokeSize.name}\r\n"); //width 전송
     } else if (widget._drawingData.controlMode == ControlMode.brush) {
       widget._bluetoothmanager.sendData(
-          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.brushColorValue}"); //color 전송
+          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.brushColorValue}\r\n"); //color 전송
       widget._bluetoothmanager.sendData(
-          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.brushStrokeSize.name}"); //width 전송
+          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.brushStrokeSize.name}\r\n"); //width 전송
     }
   }
 
@@ -205,10 +205,10 @@ class _NotePageState extends State<NotePage> {
     //블루투스 전송
     if (widget._drawingData.controlMode == ControlMode.pen) {
       widget._bluetoothmanager.sendData(
-          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.penColorValue}"); //color 전송
+          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.penColorValue}\r\n"); //color 전송
     } else if (widget._drawingData.controlMode == ControlMode.brush) {
       widget._bluetoothmanager.sendData(
-          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.brushColorValue}"); //color 전송
+          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}4D${widget._drawingData.brushColorValue}\r\n"); //color 전송
     }
   }
 
@@ -247,10 +247,10 @@ class _NotePageState extends State<NotePage> {
     //블루투스 전송
     if (widget._drawingData.controlMode == ControlMode.pen) {
       widget._bluetoothmanager.sendData(
-          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.penStrokeSize.name}"); //width 전송
+          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.penStrokeSize.name}\r\n"); //width 전송
     } else if (widget._drawingData.controlMode == ControlMode.brush) {
       widget._bluetoothmanager.sendData(
-          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.brushStrokeSize.name}"); //width 전송
+          "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.brushStrokeSize.name}\r\n"); //width 전송
     }
   }
 
@@ -327,6 +327,20 @@ class _NotePageState extends State<NotePage> {
                           }
                         });
                       }
+                    } else if (widget._drawingData.isPanning) {
+                      Offset topLeft =
+                          _transformationController.toScene(Offset.zero);
+                      Offset bottomRight = _transformationController.toScene(
+                        Offset(MediaQuery.of(context).size.width,
+                            MediaQuery.of(context).size.height),
+                      );
+
+                      topLeft = _convertToRelativePosition(topLeft);
+                      bottomRight = _convertToRelativePosition(bottomRight);
+
+                      //panning 데이터 전송
+                      widget._bluetoothmanager.sendData(
+                          "${BluetoothHeaderformat.panningHeader}&&${topLeft.dx} ${topLeft.dy}, ${bottomRight.dx} ${bottomRight.dy}\r\n");
                     }
                   },
                   onInteractionEnd: (details) {
@@ -355,8 +369,8 @@ class _NotePageState extends State<NotePage> {
                       // }
 
                       //panning 데이터 전송
-                      //   widget._bluetoothmanager.sendData(
-                      //       "${BluetoothHeaderformat.panningHeader}&&${topLeft.dx} ${topLeft.dy}, ${bottomRight.dx} ${bottomRight.dy}\r\n");
+                      widget._bluetoothmanager.sendData(
+                          "${BluetoothHeaderformat.panningHeader}&&${topLeft.dx} ${topLeft.dy}, ${bottomRight.dx} ${bottomRight.dy}\r\n");
                     }
 
                     if (_allowToDraw) {

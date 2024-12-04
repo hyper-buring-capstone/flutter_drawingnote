@@ -18,7 +18,7 @@ class DrawingPainter extends CustomPainter {
       ..isAntiAlias = true;
 
     for (var line in linesData) {
-      paint.color = Color(line.color);
+      paint.color = Color(line.color!);
       paint.strokeWidth = line.strokeWidth;
 
       Path path = Path();

@@ -5,17 +5,16 @@ enum StrokeSize { ss, s, m, l, ll }
 
 class OneLineData {
   late final List<Offset?> _points;
-  late final int _color;
+  late final int color;
   late final StrokeSize _strokeSize; // 선 굵기
   late final double _strokeWidth; //실제 선 굵기 값
 
   OneLineData({
-    required points,
-    required color,
-    required strokeSize,
+    required List<Offset?> points,
+    required this.color,
+    required StrokeSize strokeSize,
   }) {
     _points = points;
-    _color = color;
     _strokeSize = strokeSize;
 
     if (_strokeSize == StrokeSize.ss) {
@@ -37,6 +36,5 @@ class OneLineData {
   }
 
   List<Offset?> get points => _points;
-  int get color => _color;
   double get strokeWidth => _strokeWidth;
 }

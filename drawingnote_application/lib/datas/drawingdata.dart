@@ -133,12 +133,16 @@ class DrawingData {
       newLine.addAll(decodedLineData);
       newLine.add(null);
 
-      newLinesData.add(OneLineData(
+      StrokeSize jsonStrokeSize =
+          StrokeSize.values.firstWhere((e) => e.name == json['fontsize']);
+
+      newLinesData.add(
+        OneLineData(
           points: newLine,
-          color: 0xFF000000, //임시로 넣은 값, json['color']
-          strokeSize:
-              StrokeSize.l //임시로 넣은 값, StrokeSize.values[json['strokeSize']]
-          ));
+          color: int.parse('0x${json['color']}'),
+          strokeSize: jsonStrokeSize,
+        ),
+      );
     }
     if (kDebugMode) {
       print('newLinesData : $newLinesData');
