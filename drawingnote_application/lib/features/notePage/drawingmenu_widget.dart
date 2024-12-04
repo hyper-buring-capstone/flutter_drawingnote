@@ -116,6 +116,7 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                   IconButton(
                     onPressed: () {
                       widget._onSwitchDrawingMode(3);
+                      _penMenuToggle = false;
                     },
                     icon: (widget._drawingData.controlMode == ControlMode.erase)
                         ? Image.asset(
@@ -129,7 +130,10 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                           ),
                   ),
                   FloatingActionButton(
-                    onPressed: widget._onTogglePanningMode,
+                    onPressed: () {
+                      _penMenuToggle = false;
+                      widget._onTogglePanningMode();
+                    },
                     backgroundColor: widget._drawingData.isPanning
                         ? const Color(0xFF034373)
                         : const Color(0xFFFFFFFF),

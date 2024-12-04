@@ -181,6 +181,12 @@ class _NotePageState extends State<NotePage> {
   void _switchPenColor(String color) {
     setState(() {
       widget._drawingData.penColorValue = color;
+
+      if (widget._drawingData.controlMode == ControlMode.pen) {
+        widget._drawingData.penColor = int.parse('0xFF$color');
+      } else if (widget._drawingData.controlMode == ControlMode.brush) {
+        widget._drawingData.penColor = int.parse('0x4D$color');
+      }
     });
   }
 
