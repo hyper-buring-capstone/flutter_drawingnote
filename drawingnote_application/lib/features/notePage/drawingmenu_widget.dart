@@ -76,14 +76,15 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                       }
                     },
                     icon: (widget._drawingData.controlMode == ControlMode.pen)
-                        ? const Icon(
+                        ? Icon(
                             Icons.mode,
-                            color: Color(0xFF9EC6E0),
+                            color: Color(int.parse(
+                                '0xFF${widget._drawingData.penColorValue}')),
                             size: 30,
                           )
                         : const Icon(
                             Icons.mode,
-                            color: Colors.black,
+                            color: Colors.grey,
                             size: 30,
                           ),
                   ),
@@ -104,14 +105,15 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                       }
                     },
                     icon: (widget._drawingData.controlMode == ControlMode.brush)
-                        ? const Icon(
+                        ? Icon(
                             Icons.brush,
-                            color: Color(0xFF9EC6E0),
+                            color: Color(int.parse(
+                                '0xFF${widget._drawingData.brushColorValue}')),
                             size: 30,
                           )
                         : const Icon(
                             Icons.brush,
-                            color: Colors.black,
+                            color: Colors.grey,
                             size: 30,
                           ),
                   ),
@@ -129,6 +131,7 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                         : Image.asset(
                             'assets/icon_eraser.png',
                             width: 25,
+                            color: Colors.grey,
                           ),
                   ),
                   FloatingActionButton(
