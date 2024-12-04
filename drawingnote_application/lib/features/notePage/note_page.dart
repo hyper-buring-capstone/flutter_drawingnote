@@ -184,7 +184,7 @@ class _NotePageState extends State<NotePage> {
           "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.penStrokeSize.name}\r\n"); //width 전송
     } else if (widget._drawingData.controlMode == ControlMode.brush) {
       widget._bluetoothmanager.sendData(
-          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}FF${widget._drawingData.brushColorValue}\r\n"); //color 전송
+          "${BluetoothHeaderformat.colorHeader}${BluetoothHeaderformat.seperator}4D${widget._drawingData.brushColorValue}\r\n"); //color 전송
       widget._bluetoothmanager.sendData(
           "${BluetoothHeaderformat.widthHeader}${BluetoothHeaderformat.seperator}${widget._drawingData.brushStrokeSize.name}\r\n"); //width 전송
     }
