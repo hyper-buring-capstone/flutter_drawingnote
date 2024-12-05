@@ -76,7 +76,6 @@ class _ConnectionPageState extends State<ConnectionPage> {
         '연결 중...',
         style: TextStyle(
           fontSize: 30,
-          fontFamily: 'title_font',
         ),
       );
     }
@@ -87,7 +86,6 @@ class _ConnectionPageState extends State<ConnectionPage> {
         '서버 정보 수신 중...',
         style: TextStyle(
           fontSize: 30,
-          fontFamily: 'title_font',
         ),
       );
       //연결 준비 완료

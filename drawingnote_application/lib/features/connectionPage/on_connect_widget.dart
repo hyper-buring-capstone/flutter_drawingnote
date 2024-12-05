@@ -56,7 +56,6 @@ class _OnConnectWidgetState extends State<OnConnectWidget> {
               "시작",
               style: TextStyle(
                 color: Colors.black,
-                fontFamily: 'title_font',
                 fontSize: 80,
                 fontWeight: FontWeight.bold,
               ),
@@ -70,10 +69,7 @@ class _OnConnectWidgetState extends State<OnConnectWidget> {
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text('연결 종료',
-                style: TextStyle(
-                    fontSize: 25,
-                    fontFamily: 'title_font',
-                    color: Colors.red[300])),
+                style: TextStyle(fontSize: 25, color: Colors.red[300])),
           ),
         ),
       ],
