@@ -71,6 +71,11 @@ class _NotePageState extends State<NotePage> {
         }
       }
     });
+
+    //진입 시 none으로 초기화
+    if (widget._drawingData.controlMode != ControlMode.none) {
+      widget._drawingData.changeControlMode(0);
+    }
   }
 
   Offset _convertToRelativePosition(Offset position) {
@@ -256,6 +261,8 @@ class _NotePageState extends State<NotePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool penMenuToggle = false;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: widget._httpmanager.isImageBytesNull()
@@ -270,6 +277,8 @@ class _NotePageState extends State<NotePage> {
                   maxScale: 4.0,
                   onInteractionStart: (details) {
                     if (!widget._drawingData.isPanning) {
+                      penMenuToggle = false;
+
                       //모바일 드로잉 관리
                       Offset position =
                           _transformationController.toScene(details.focalPoint);
@@ -404,6 +413,7 @@ class _NotePageState extends State<NotePage> {
                     onSwitchDrawingMode: _switchDrawingMode,
                     onSwitchPenColor: _switchPenColor,
                     onSwitchPenWidth: _switchPenWidth,
+                    penMenuToggle: penMenuToggle,
                   ),
                 )
               ],

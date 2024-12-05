@@ -17,11 +17,11 @@ class MainIcons extends StatelessWidget {
           ),
         ),
         const Text(
-          'Phonote',
+          'LAVA',
           style: TextStyle(
             fontSize: 40,
-            fontFamily: "title_font",
-            color: Color(0xFF05416D),
+            color: Color(0xFFF23B3C),
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],

@@ -17,7 +17,6 @@ class PairedBluetoothDevicesWidget extends StatelessWidget {
         children: [
           const Text('연결할 기기를 선택하세요',
               style: TextStyle(
-                fontFamily: 'title_font',
                 fontSize: 20,
               )),
           const SizedBox(height: 10),

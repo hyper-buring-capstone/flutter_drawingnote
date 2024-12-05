@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(fontFamily: 'spoqaHanSanNeo'),
       initialRoute: '/',
       routes: {
         "/": (context) => const ConnectionPage(),

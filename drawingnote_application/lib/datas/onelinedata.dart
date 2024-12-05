@@ -19,19 +19,19 @@ class OneLineData {
 
     if (_strokeSize == StrokeSize.ss) {
       //small small
-      _strokeWidth = 3.0;
+      _strokeWidth = 2.0;
     } else if (_strokeSize == StrokeSize.s) {
       //small
-      _strokeWidth = 5.0;
+      _strokeWidth = 4.0;
     } else if (_strokeSize == StrokeSize.m) {
       //medium
-      _strokeWidth = 8.0;
+      _strokeWidth = 7.0;
     } else if (_strokeSize == StrokeSize.l) {
       //large
       _strokeWidth = 12.0;
     } else {
       //large large
-      _strokeWidth = 15.0;
+      _strokeWidth = 17.0;
     }
   }
 
