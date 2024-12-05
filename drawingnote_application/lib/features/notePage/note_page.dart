@@ -71,6 +71,11 @@ class _NotePageState extends State<NotePage> {
         }
       }
     });
+
+    //진입 시 none으로 초기화
+    if (widget._drawingData.controlMode != ControlMode.none) {
+      widget._drawingData.changeControlMode(0);
+    }
   }
 
   Offset _convertToRelativePosition(Offset position) {
