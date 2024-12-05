@@ -22,7 +22,7 @@ class DrawingData {
 
   ControlMode controlMode = ControlMode.none;
 
-  final removingDistance = 10.0;
+  final removingDistance = 8.0;
 
   void switchEraserMode() {
     isEraser = !isEraser;
