@@ -1,14 +1,17 @@
 name: drawingnote_application
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
   sdk: ^3.5.1
 
 dependencies:
+  bluetooth_classic: ^0.0.2
   flutter:
     sdk: flutter
+  flutter_native_splash: ^2.4.3
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:
@@ -17,3 +20,21 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/
+  fonts:
+    - family: title_font
+      fonts:
+        - asset: assets/fonts/title_font.ttf
+    - family: spoqaHanSanNeo
+      fonts:
+        - asset: assets/fonts/SpoqaHanSansNeo-Bold.ttf
+          weight: 500
+        - asset: assets/fonts/SpoqaHanSansNeo-Medium.ttf
+          weight: 400
+        - asset: assets/fonts/SpoqaHanSansNeo-Regular.ttf
+          weight: 300
+        - asset: assets/fonts/SpoqaHanSansNeo-Light.ttf
+          weight: 200
+        - asset: assets/fonts/SpoqaHanSansNeo-Thin.ttf
+          weight: 100
