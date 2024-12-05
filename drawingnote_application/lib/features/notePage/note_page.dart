@@ -43,6 +43,7 @@ class _NotePageState extends State<NotePage> {
   Offset? _imagePositionBottomRight;
 
   bool _allowToDraw = false; //이미지 안에서 선 긋기 시작할 떄만 허용
+  bool _penMenuToggle = false;
 
   @override
   void initState() {
@@ -259,10 +260,15 @@ class _NotePageState extends State<NotePage> {
     }
   }
 
+  //penMenuToggle 변경 함수
+  void setPenMenuToggle(bool value) {
+    setState(() {
+      _penMenuToggle = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool penMenuToggle = false;
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: widget._httpmanager.isImageBytesNull()
@@ -277,7 +283,7 @@ class _NotePageState extends State<NotePage> {
                   maxScale: 4.0,
                   onInteractionStart: (details) {
                     if (!widget._drawingData.isPanning) {
-                      penMenuToggle = false;
+                      setPenMenuToggle(false);
 
                       //모바일 드로잉 관리
                       Offset position =
@@ -413,7 +419,8 @@ class _NotePageState extends State<NotePage> {
                     onSwitchDrawingMode: _switchDrawingMode,
                     onSwitchPenColor: _switchPenColor,
                     onSwitchPenWidth: _switchPenWidth,
-                    penMenuToggle: penMenuToggle,
+                    penMenuToggle: _penMenuToggle,
+                    setPenMenuToggle: setPenMenuToggle,
                   ),
                 )
               ],
