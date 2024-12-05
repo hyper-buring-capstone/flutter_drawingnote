@@ -39,8 +39,6 @@ class _ConnectionPageState extends State<ConnectionPage> {
       pagedata: _pagedata,
     );
 
-    _bluetoothmanager.requestPermission();
-
     //httpmanager의 ip주소 변경 감지하여 UI 업데이트
     _httpmanager.ipAddress.addListener(() {
       if (kDebugMode) {
@@ -53,10 +51,6 @@ class _ConnectionPageState extends State<ConnectionPage> {
     _bluetoothmanager.deviceStatus.addListener(() {
       setState(() {});
     });
-
-    _bluetoothmanager.getDevices().then((_) {
-      setState(() {});
-    }); //페어링된 디바이스 목록 가져오기
   }
 
   //화면 구성
