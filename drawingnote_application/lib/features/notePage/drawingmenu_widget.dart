@@ -126,7 +126,7 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                         ? Image.asset(
                             'assets/icon_eraser.png',
                             width: 25,
-                            color: const Color(0xFF9EC6E0),
+                            color: const Color(0xFFF0782A),
                           )
                         : Image.asset(
                             'assets/icon_eraser.png',
@@ -140,7 +140,7 @@ class _DrawingmenuWidgetState extends State<DrawingmenuWidget> {
                       widget._onTogglePanningMode();
                     },
                     backgroundColor: widget._drawingData.isPanning
-                        ? const Color(0xFF034373)
+                        ? const Color(0xFFF23B3C)
                         : const Color(0xFFFFFFFF),
                     shape: const CircleBorder(),
                     child: widget._drawingData.isPanning

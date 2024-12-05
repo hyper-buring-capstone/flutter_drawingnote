@@ -69,7 +69,7 @@ class _OnConnectWidgetState extends State<OnConnectWidget> {
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text('연결 종료',
-                style: TextStyle(fontSize: 25, color: Colors.red[300])),
+                style: TextStyle(fontSize: 20, color: Colors.red[400])),
           ),
         ),
       ],

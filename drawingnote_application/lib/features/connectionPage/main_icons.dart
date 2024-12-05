@@ -20,7 +20,7 @@ class MainIcons extends StatelessWidget {
           'LAVA',
           style: TextStyle(
             fontSize: 40,
-            color: Color(0xFF05416D),
+            color: Color(0xFFF23B3C),
             fontWeight: FontWeight.w500,
           ),
         ),
