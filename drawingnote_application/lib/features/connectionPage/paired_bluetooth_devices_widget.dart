@@ -18,29 +18,25 @@ class _PairedBluetoothDevicesWidgetState
     extends State<PairedBluetoothDevicesWidget> {
   bool _permissionCheck = false;
 
+  void _getDevices() {
+    widget._bluetoothmanager.requestPermission().then((_) {
+      widget._bluetoothmanager.getDevices().then((_) {
+        setState(() {
+          _permissionCheck = true;
+        });
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_permissionCheck == false) {
       return Center(
-        child: GestureDetector(
-          onTap: () {
-            widget._bluetoothmanager.requestPermission().then((_) {
-              widget._bluetoothmanager.getDevices().then((_) {
-                setState(() {
-                  _permissionCheck = true;
-                });
-              });
-            });
-          },
-          child: const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              '블루투스 기기 검색',
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-          ),
+        child: FloatingActionButton.large(
+          onPressed: _getDevices,
+          shape: const CircleBorder(),
+          backgroundColor: const Color(0xFFF23B3C),
+          child: const Icon(Icons.bluetooth, color: Colors.white),
         ),
       );
     }
